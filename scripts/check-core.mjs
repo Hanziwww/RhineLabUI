@@ -10,6 +10,9 @@ const files = [
   "ui-motion",
   "archive-pathtracing",
   "rendering",
+  "decryption",
+  "internal-optics",
+  "shell",
 ];
 const results = await Promise.all(
   files.map(

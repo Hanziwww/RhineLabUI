@@ -16,6 +16,8 @@ import "./style.css";
 import "./responsive.css";
 import "./archive-ui-motion.css";
 import "./content.css";
+import "./decryption.css";
+import { InspectionOverlay } from "./inspection-overlay";
 import { createRollingNumber } from "@kitlangton/rolling-number";
 import { ArchiveScene } from "./scene";
 import { ModelViewer } from "./model-viewer";
@@ -57,7 +59,7 @@ $("#stage").innerHTML = `
     <div class="welcome"><div class="welcome-panel"></div><div class="welcome-heading">WELCOME TO</div><div class="welcome-company"><strong>${h(site.brand.company)}</strong><strong class="welcome-highlight" aria-hidden="true">${h(site.brand.company)}</strong></div><div class="welcome-database">${h(site.brand.database)}</div><div class="welcome-logo">${logo}</div></div>
   </section>
   <div id="cinema-caption" class="cinema-caption"></div>
-  <svg id="inspection-marks" viewBox="0 0 1920 1080" aria-hidden="true"><path id="inspection-lines"/><g id="inspection-corners"></g></svg>
+  <svg id="inspection-marks" viewBox="0 0 1920 1080" aria-hidden="true"><path id="inspection-lines"/><g id="inspection-corners"></g><circle id="inspection-point" r="1.8"/></svg>
   <div id="inspection-text" aria-hidden="true">CONFIDENTIALITY:<strong>GENERAL BUSINESS USE</strong></div>
   <section id="archive-ui" class="archive-ui" aria-label="档案选择">
     <div class="archive-callout"><div class="eyebrow">${h(site.brand.database)} <span>／</span> <span id="archive-category">机构档案</span></div><button class="file-title" data-action="open">FILE NUMBER: <span id="selected-id">${h(site.numberPrefix)}<span id="selected-code">001</span></span><span class="file-open">↗</span></button><div class="callout-rule"><i></i></div><div class="file-summary"><span id="selected-title">莱茵生命</span></div><button class="read-file" data-action="open">ACCESS FILE <span>→</span></button></div>
@@ -97,6 +99,7 @@ $("#boot-background").insertAdjacentHTML(
   '<div class="boot-white"></div>',
 );
 const bootSequence = new BootSequence($("#stage"));
+const inspectionOverlay = new InspectionOverlay();
 const uiMotion = new ArchiveUiMotion($("#stage"));
 const reader = new ArchiveReader($("#detail-content"));
 reader.onPanelChange = (animate) => uiMotion.panelChanged(animate);
@@ -699,6 +702,7 @@ document.addEventListener("click", (e) => {
   if (action === "open") openFile();
   if (action === "model-viewer" && mode === "detail") {
     viewer ??= new ModelViewer($("#stage"), () => audio.play("back"));
+    scene.finishDecryption();
     viewer.open(
       records[selected].id,
       records[selected].title,
@@ -964,41 +968,12 @@ function frame(ms: number) {
   if (!viewer?.isOpen) scene?.update(time, cinema);
   viewer?.update(time);
   if (scene && !viewer?.isOpen) uiMotion.update(time, scene.detailVisibility);
-  const inspectTime = cinema?.time ?? -1;
-  const inspectOpacity =
-    ease((inspectTime - 29.15) / 0.35) * (1 - ease((inspectTime - 31.4) / 0.5));
-  $("#inspection-marks").style.opacity = String(inspectOpacity);
-  $("#inspection-text").style.opacity = String(inspectOpacity);
-  $("#inspection-text strong").style.opacity = String(
-    ease((inspectTime - 30.25) / 0.5),
-  );
-  if (scene && inspectOpacity > 0) {
-    const corners = [
-      [-2.05, 3.04],
-      [2.05, 3.04],
-      [-2.05, 0.35],
-      [2.05, 0.35],
-    ].map(([x, y]) => scene!.projectCard(x, y));
-    $("#inspection-corners").innerHTML = corners
-      .map(([x, y]) => `<rect x="${x - 4}" y="${y - 4}" width="8" height="8"/>`)
-      .join("");
-    const a = scene.projectCard(-1.88, 0.5),
-      b = scene.projectCard(-0.36, 1.7);
-    const c = scene.projectCard(0.36, 2.04),
-      d = scene.projectCard(1.9, 2.9);
-    $("#inspection-lines").setAttribute("d", `M${a}L${b}M${c}L${d}`);
-  }
-  if (scene && inspectTime > 32.5) {
-    const [x, y] = scene.projectCard(0.15, 1.9);
-    $("#inspection-marks").style.opacity = String(
-      ease((inspectTime - 32.5) / 0.5),
+  if (scene)
+    inspectionOverlay.render(
+      scene.decryptionFrame,
+      (x, y) => scene.projectCard(x, y),
+      Boolean(cinema),
     );
-    $("#inspection-corners").innerHTML = "";
-    $("#inspection-lines").setAttribute(
-      "d",
-      `M${x - 2},${y}h4M${x},${y - 2}v4`,
-    );
-  }
   if (Math.floor(time) !== lastTime) {
     lastTime = Math.floor(time);
     $("#clock").textContent = new Date().toLocaleTimeString("en-GB");

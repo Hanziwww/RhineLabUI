@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { DenoiseMaterial, WebGLPathTracer } from "three-gpu-pathtracer";
 import { FullScreenQuad } from "three/addons/postprocessing/Pass.js";
 import { createArchiveEnvironment, WARM_STUDIO } from "./archive-lighting";
+import { configureTracedInternalOptics } from "./internal-optics";
+import { denoiseFadeFragment } from "./trace-denoise";
 
 // The assembled viewer owns its tracing scene. Homepage instance snapshots
 // and motion-aware accumulation are handled separately by archive-pathtracer.
@@ -62,12 +64,7 @@ export class ViewerPathTracer {
       if (original.isMeshStandardMaterial) {
         material = original.clone();
         material.onBeforeCompile = () => {};
-        // The old acrylic shader varies roughness with height. Its clear main
-        // surface is represented with physical roughness in the ray renderer.
-        if (object.userData.surface === "Frosted_Polymer") {
-          (material as THREE.MeshPhysicalMaterial).roughness = 0.07;
-          (material as THREE.MeshPhysicalMaterial).transmission = 0.96;
-        }
+        configureTracedInternalOptics(material as THREE.MeshPhysicalMaterial);
         if (object.userData.surface === "Ivory_Edges") {
           (material as THREE.MeshPhysicalMaterial).roughness = 0.16;
           (material as THREE.MeshPhysicalMaterial).transmission = 0.76;
@@ -94,9 +91,13 @@ export class ViewerPathTracer {
       this.pairs.push({ source: object, target });
       this.scene.add(target);
     });
+    this.denoise.fragmentShader = denoiseFadeFragment(
+      this.denoise.fragmentShader,
+    );
     this.tracer = new WebGLPathTracer(renderer);
-    this.tracer.bounces = 6;
-    this.tracer.transmissiveBounces = 12;
+    // Match the archive's budget for the new nested optical layers.
+    this.tracer.bounces = 16;
+    this.tracer.transmissiveBounces = 32;
     this.tracer.filterGlossyFactor = 0.15;
     this.tracer.textureSize.set(1024, 1024);
     this.tracer.tiles.set(2, 2);
@@ -155,8 +156,24 @@ export class ViewerPathTracer {
       return "complete";
     if (this.geometryDirty) {
       this.rasterScene.updateMatrixWorld(true);
-      for (const pair of this.pairs)
+      for (const pair of this.pairs) {
         pair.target.matrix.copy(pair.source.matrixWorld);
+        const source = pair.source.material as THREE.MeshStandardMaterial;
+        if (source.isMeshStandardMaterial) {
+          const material = pair.target.material as THREE.MeshPhysicalMaterial;
+          material.copy(source);
+          material.onBeforeCompile = () => {};
+          configureTracedInternalOptics(material);
+          if (pair.source.userData.surface === "Ivory_Edges") {
+            material.roughness = 0.16;
+            material.transmission = 0.76;
+            material.metalness = 0;
+          }
+          (
+            material as THREE.MeshPhysicalMaterial & { castShadow: boolean }
+          ).castShadow = pair.source.castShadow;
+        }
+      }
       this.tracer.setScene(this.scene, this.camera);
       this.geometryDirty = false;
       this.wasMoving = false;

@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { archiveDepthRange, archivePixelRatio } from "../src/archive-rendering.ts";
+import {
+  archiveDepthRange,
+  archivePixelRatio,
+} from "../src/archive-rendering.ts";
 import {
   COLUMN_SPACING,
   ROW_SPACING,
@@ -101,7 +104,7 @@ for (const distance of [72, 100, 140]) {
       depthCode(surface, range) - depthCode(surface + 0.002, range),
     );
     if (distance === 140) {
-      const oldRange = archiveDepthRange(distance, true);
+      const oldRange = { near: 0.1, far: 300 };
       if (depthCode(surface, oldRange) === depthCode(surface + 0.002, oldRange))
         oldDepthCollisions++;
     }
@@ -116,14 +119,15 @@ assert.ok(
   oldDepthCollisions > 0,
   "The fixture reproduces the old depth collision",
 );
-assert.deepEqual(archiveDepthRange(140, true), { near: 0.1, far: 300 });
+assert.deepEqual(archiveDepthRange(140, true), { near: 5, far: 300 });
 console.log(
   JSON.stringify(
     {
       checkedCorners,
       oldDepthCollisions,
       minimumDepthLevelsAcrossThinGap: minimumSeparation,
-      referenceRange: "unchanged",
+      referenceRange:
+        "upstream near=5 precision fix; animated camera framing retained",
       checks: "passed",
     },
     null,

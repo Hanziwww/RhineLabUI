@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Traced crossfade check</title>
+<h1>Traced crossfade</h1><pre id="result">Checking…</pre>
+<script type="module">
+import * as T from 'three';
+import {FullScreenQuad} from 'three/addons/postprocessing/Pass.js';
+import {DenoiseMaterial} from 'three-gpu-pathtracer';
+import {denoiseFadeFragment} from '/src/trace-denoise.ts';
+const result=document.querySelector('#result'),checks=[];
+const renderer=new T.WebGLRenderer({premultipliedAlpha:true});
+renderer.setSize(32,32);renderer.outputColorSpace=T.LinearSRGBColorSpace;
+document.body.append(renderer.domElement);
+const pixels=new Float32Array(32*32*4);
+for(let i=0;i<32*32;i++)pixels.set([.8,.7,.6,1],i*4);
+const texture=new T.DataTexture(pixels,32,32,T.RGBAFormat,T.FloatType);texture.needsUpdate=true;
+const material=new DenoiseMaterial({map:texture,sigma:1,threshold:.3,kSigma:1});
+material.fragmentShader=denoiseFadeFragment(material.fragmentShader);
+material.transparent=true;material.blending=T.NormalBlending;material.premultipliedAlpha=true;
+const quad=new FullScreenQuad(material),gl=renderer.getContext(),pixel=new Uint8Array(4);
+try {
+ for(const opacity of [0,.25,.5,.75,1]) {
+  renderer.setClearColor(new T.Color(.2,.3,.4),1);renderer.clear();renderer.autoClear=false;
+  material.uniforms.opacity.value=opacity;quad.render(renderer);
+  gl.readPixels(16,16,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
+  const expected=[.2,.3,.4].map((base,i)=>Math.round(255*(base*(1-opacity)+[.8,.7,.6][i]*opacity)));
+  const passed=expected.every((value,i)=>Math.abs(value-pixel[i])<=2);
+  checks.push({opacity,expected,actual:[...pixel],passed});
+  if(!passed)throw Error('Crossfade added full-strength RGB instead of weighting it by opacity');
+ }
+ result.textContent=JSON.stringify({passed:true,checks},null,2);
+} catch(error) {result.textContent=JSON.stringify({passed:false,error:String(error),checks},null,2)}
+finally {texture.dispose();material.dispose();quad.dispose();renderer.dispose()}
+</script></html>

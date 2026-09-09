@@ -8,6 +8,16 @@
       "id": "rhine",
       "port": 5273,
       "archive": {
+        "decryption": {
+          "time": -1,
+          "intervals": [],
+          "markers": 0,
+          "point": 0,
+          "label": 0,
+          "labelValue": 0,
+          "clarity": 0,
+          "phase": "waiting"
+        },
         "topLeft": [
           517,
           313
@@ -52,7 +62,7 @@
           "sampleLimit": 512,
           "width": 2160,
           "height": 1350,
-          "triangles": 2615296,
+          "triangles": 1273016,
           "expandedInstances": 1435,
           "builds": 1,
           "buildProgress": 1,
@@ -71,7 +81,7 @@
             "name": "Frosted_Polymer",
             "normalMap": false,
             "roughnessMap": false,
-            "roughness": 0.065,
+            "roughness": 0.48,
             "transmission": 0.9
           },
           {
@@ -84,14 +94,14 @@
         ],
         "aoProjectionSynced": true,
         "loaded": true,
-        "drawCalls": 74,
-        "triangles": 9375058,
+        "drawCalls": 102,
+        "triangles": 5311934,
         "archiveCount": 288,
         "returningFiles": 0,
         "selectionPhase": "settled",
         "pendingPulse": null,
         "pulses": [],
-        "referenceTime": 51.7,
+        "referenceTime": 48.83,
         "selectedSlot": 76,
         "selectedLane": 2,
         "selectedCell": {
@@ -125,7 +135,7 @@
         "fogFar": 164.99999999999997,
         "returningAppearance": [],
         "rail": 0,
-        "fps": 1,
+        "fps": 17,
         "mode": "archive",
         "selected": "X-001",
         "saved": [
@@ -141,6 +151,16 @@
       "id": "rhine-audiology",
       "port": 5274,
       "archive": {
+        "decryption": {
+          "time": -1,
+          "intervals": [],
+          "markers": 0,
+          "point": 0,
+          "label": 0,
+          "labelValue": 0,
+          "clarity": 0,
+          "phase": "waiting"
+        },
         "topLeft": [
           517,
           313
@@ -167,7 +187,7 @@
           45.5345,
           68.6579
         ],
-        "fieldOfView": 3.3322196837484346,
+        "fieldOfView": 3.332219683748434,
         "cameraNear": 79.99999999999997,
         "cameraFar": 199.99999999999997,
         "antialias": "SMAA",
@@ -185,7 +205,7 @@
           "sampleLimit": 512,
           "width": 2160,
           "height": 1350,
-          "triangles": 2615296,
+          "triangles": 1273016,
           "expandedInstances": 1435,
           "builds": 1,
           "buildProgress": 1,
@@ -204,27 +224,27 @@
             "name": "Frosted_Polymer",
             "normalMap": false,
             "roughnessMap": false,
-            "roughness": 0.06500000000000003,
+            "roughness": 0.48,
             "transmission": 0.9
           },
           {
             "name": "Ivory_Edges",
             "normalMap": false,
             "roughnessMap": false,
-            "roughness": 0.12000000000000001,
-            "transmission": 0.8799999999999999
+            "roughness": 0.12,
+            "transmission": 0.88
           }
         ],
         "aoProjectionSynced": true,
         "loaded": true,
-        "drawCalls": 74,
-        "triangles": 9375058,
+        "drawCalls": 102,
+        "triangles": 5311934,
         "archiveCount": 288,
         "returningFiles": 0,
         "selectionPhase": "settled",
         "pendingPulse": null,
         "pulses": [],
-        "referenceTime": 46.25,
+        "referenceTime": 43.31,
         "selectedSlot": 20,
         "selectedLane": 0,
         "selectedCell": {
@@ -243,8 +263,8 @@
           "minRow": 4,
           "maxRow": 35
         },
-        "laneFocus": 7.737636848032907e-20,
-        "columnCamera": -10.39999999999999,
+        "laneFocus": 7.499045090684188e-15,
+        "columnCamera": -10.399999999999427,
         "rotation": 0,
         "clearance": -3.2864903132290353,
         "canInspect": false,
@@ -258,7 +278,7 @@
         "fogFar": 164.99999999999997,
         "returningAppearance": [],
         "rail": -4.96,
-        "fps": 36,
+        "fps": 44,
         "mode": "archive",
         "selected": "sensorineural-hearing-loss",
         "saved": []

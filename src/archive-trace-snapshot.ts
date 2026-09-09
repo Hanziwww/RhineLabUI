@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { configureTracedInternalOptics } from "./internal-optics.ts";
 
 // Expand instances only for the tracing snapshot. Interactive rendering keeps
 // its instanced meshes, and the delivered Blender geometry is never modified.
@@ -64,6 +65,23 @@ export class ArchiveTraceSnapshot {
       ).castShadow = castShadow;
       this.materials.set(source, result);
     }
+    if (!array && source instanceof THREE.MeshStandardMaterial) {
+      // A selected mesh survives multiple decryptions. Refresh its cached
+      // physical material after clarity changes, retaining the shadow policy.
+      result.copy(source);
+      result.onBeforeCompile = () => {};
+      configureTracedInternalOptics(result as THREE.MeshPhysicalMaterial);
+      if (source.name.startsWith("Ivory_Edges")) {
+        const acrylic = result as THREE.MeshPhysicalMaterial;
+        acrylic.color.set("#fffefc");
+        acrylic.transmission = 0.76;
+        acrylic.roughness = 0.16;
+        acrylic.metalness = 0;
+      }
+      (
+        result as THREE.MeshStandardMaterial & { castShadow: boolean }
+      ).castShadow = castShadow;
+    }
     return result;
   }
 
@@ -120,6 +138,12 @@ export class ArchiveTraceSnapshot {
         this.root.add(target);
       }
       target.matrix.copy(matrix);
+      if (!array)
+        target.material = this.material(
+          sourceMaterial,
+          false,
+          source.castShadow,
+        );
       target.visible = true;
       this.triangles +=
         (target.geometry.index?.count ??

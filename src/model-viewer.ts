@@ -21,7 +21,11 @@ const PARTS = [
   { id: "carrier", label: "背板与框架", en: "CARRIER", depth: -2.05 },
 ] as const;
 
-type ModelSource = { model: THREE.Group; dispose: () => void };
+type ModelSource = {
+  model: THREE.Group;
+  dispose: () => void;
+  setClarity?: (value: number) => void;
+};
 export class ModelViewer {
   readonly root: HTMLElement;
   private canvasHost: HTMLElement;
@@ -34,6 +38,8 @@ export class ModelViewer {
   private groups = new Map<string, THREE.Group>();
   private spread = { value: 0, velocity: 0 };
   private targetSpread = 0;
+  private clarity = { value: 1, velocity: 0 };
+  private targetClarity = 1;
   private lastTime = 0;
   private request = 0;
   private reduced = false;
@@ -70,6 +76,7 @@ export class ModelViewer {
         <div class="viewer-heading"><span>${h(site.brand.name)} / OBJECT STUDY</span><h2 id="viewer-title">档案模型</h2><p id="viewer-file"></p></div>
         <span class="viewer-index">360<span>°</span></span>
       </header>
+      <div class="viewer-surface" role="group" aria-label="${english ? "Glass surface" : "玻璃表面"}"><button data-viewer="clear" aria-pressed="true">${english ? "Clear" : "清晰"}</button><button data-viewer="frosted" aria-pressed="false">${english ? "Frosted" : "磨砂"}</button></div>
       <aside class="viewer-parts" aria-label="模型装配结构"><div>ASSEMBLY / 装配结构</div>${PARTS.map((p, i) => `<p><span>${String(i + 1).padStart(2, "0")}</span><strong>${h(english ? p.en : p.label)}</strong><small>${p.en}</small></p>`).join("")}</aside>
       <div class="viewer-loading" role="status"><span>正在载入模型…</span><button data-viewer="retry" hidden>重新载入 ↗</button></div>
       <footer class="viewer-footer">
@@ -142,6 +149,8 @@ export class ModelViewer {
       if (action === "close") this.close();
       if (action === "retry") void this.load();
       if (this.loading || !this.source) return;
+      if (action === "clear" || action === "frosted")
+        this.setSurface(action === "clear");
       if (action === "explode") this.setExploded(true);
       if (action === "assemble") this.setExploded(false);
       if (action === "reset") this.resetView();
@@ -176,6 +185,8 @@ export class ModelViewer {
       "FILE " + id + " / INTERNAL DATABASE";
     this.spread = { value: 0, velocity: 0 };
     this.targetSpread = 0;
+    this.clarity = { value: 1, velocity: 0 };
+    this.setSurface(true);
     this.lastTime = 0;
     this.root.dataset.exploded = "false";
     this.resetView();
@@ -355,7 +366,7 @@ export class ModelViewer {
   }
 
   private setButtonsDisabled(disabled: boolean) {
-    for (const action of ["explode", "assemble", "reset"]) {
+    for (const action of ["explode", "assemble", "reset", "clear", "frosted"]) {
       this.root.querySelector<HTMLButtonElement>(
         `[data-viewer="${action}"]`,
       )!.disabled = disabled;
@@ -382,6 +393,18 @@ export class ModelViewer {
       this.status = value;
       this.root.querySelector(".viewer-assembly-state")!.textContent = value;
     }
+  }
+  private setSurface(clear: boolean) {
+    this.targetClarity = clear ? 1 : 0;
+    this.root.dataset.surface = clear ? "clear" : "frosted";
+    this.root
+      .querySelector('[data-viewer="clear"]')!
+      .setAttribute("aria-pressed", String(clear));
+    this.root
+      .querySelector('[data-viewer="frosted"]')!
+      .setAttribute("aria-pressed", String(!clear));
+    if (this.reduced) this.clarity = { value: this.targetClarity, velocity: 0 };
+    this.pathTracer?.invalidateGeometry();
   }
   private setTraceStatus(value: string) {
     value = message(value);
@@ -533,6 +556,15 @@ export class ModelViewer {
     const dt = Math.min(this.lastTime ? time - this.lastTime : 1 / 60, 0.05);
     this.lastTime = time;
     if (this.source) {
+      if (this.reduced)
+        this.clarity = { value: this.targetClarity, velocity: 0 };
+      else damp(this.clarity, this.targetClarity, 8, dt);
+      if (
+        Math.abs(this.clarity.value - this.targetClarity) < 0.0001 &&
+        Math.abs(this.clarity.velocity) < 0.001
+      )
+        this.clarity = { value: this.targetClarity, velocity: 0 };
+      this.source.setClarity?.(this.clarity.value);
       damp(this.spread, this.targetSpread, this.reduced ? 45 : 5.5, dt);
       if (
         Math.abs(this.spread.value - this.targetSpread) < 0.0001 &&
@@ -556,6 +588,8 @@ export class ModelViewer {
       const state = this.pathTracer.render(
         time,
         Math.abs(this.spread.value - this.targetSpread) > 0.0001 ||
+          Math.abs(this.clarity.value - this.targetClarity) > 0.0001 ||
+          Math.abs(this.clarity.velocity) > 0.001 ||
           Math.abs(this.spread.velocity) > 0.001,
       );
       this.setTraceStatus(
@@ -570,6 +604,8 @@ export class ModelViewer {
     } else this.renderer.render(this.scene, this.camera);
     this.root.dataset.stats = JSON.stringify({
       ready: Boolean(this.source),
+      clarity: this.clarity.value,
+      targetClarity: this.targetClarity,
       gpuBackend: this.gpuBackend,
       pathTracing:
         this.traceWanted && this.pathTracer ? this.pathTracer.getStats() : null,

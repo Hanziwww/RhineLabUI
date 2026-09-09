@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { ArchiveTraceSnapshot } from "../src/archive-trace-snapshot.ts";
+import { configureInternalOptics } from "../src/internal-optics.ts";
 
 const bytes = await readFile(
   new URL("../public/assets/archive-cassette.glb", import.meta.url),
@@ -103,6 +104,44 @@ assert(lifted.matrixWorld.equals(selected.matrixWorld));
 parent.visible = false;
 snapshot.update(scene);
 assert.equal(snapshot.root.children.length, 1);
+const cover = new THREE.Mesh(shell.geometry, shell.material.clone());
+cover.material.roughness = 0.48;
+scene.add(cover);
+snapshot.update(scene);
+const tracedCover = snapshot.root.children.find(
+  (mesh) => mesh.geometry === cover.geometry,
+);
+assert.equal(tracedCover.material.roughness, 0.48);
+cover.material.roughness = 0.025;
+cover.material.transmission = 0.985;
+snapshot.update(scene);
+assert.equal(
+  tracedCover.material.roughness,
+  0.025,
+  "Reused trace materials follow a completed clearing transition",
+);
+assert.equal(tracedCover.material.transmission, 0.985);
+const interior = sourceMeshes
+  .find((mesh) => mesh.material.name.startsWith("Optical_Glass_Body"))
+  .clone();
+interior.material = interior.material.clone();
+configureInternalOptics("Optical_Glass_Body", interior.material);
+scene.add(interior);
+snapshot.update(scene);
+const tracedInterior = snapshot.root.children.find(
+  (mesh) => mesh.geometry === interior.geometry,
+);
+assert.equal(tracedInterior.material.blending, THREE.NormalBlending);
+assert.equal(tracedInterior.material.opacity, 1);
+assert.ok(
+  tracedInterior.material.transmission > 0.8,
+  "Nested glass uses real transmission in the tracer",
+);
+assert.equal(
+  interior.material.blending,
+  THREE.CustomBlending,
+  "Raster capture approximation stays isolated",
+);
 snapshot.dispose();
 assert.deepEqual(
   shell.geometry.getAttribute("position").array,

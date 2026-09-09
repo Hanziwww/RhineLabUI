@@ -1,0 +1,195 @@
+{
+  "states": [
+    {
+      "surface": "clear",
+      "stats": {
+        "ready": true,
+        "clarity": 1,
+        "targetClarity": 1,
+        "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "pathTracing": {
+          "engine": "three-gpu-pathtracer",
+          "version": "0.0.24",
+          "samples": 64,
+          "bounces": 16,
+          "transmissionBounces": 32,
+          "width": 1920,
+          "height": 1200,
+          "triangleGeometry": true,
+          "areaLights": 3,
+          "denoiser": "glslSmartDeNoise"
+        },
+        "spread": 0,
+        "target": 0,
+        "distance": 14.50103444585936,
+        "targetPosition": [
+          0,
+          0,
+          0
+        ],
+        "azimuth": 0.5404195002705843,
+        "polar": 1.3056502214105623,
+        "parts": [
+          {
+            "id": "fasteners",
+            "z": 0,
+            "meshes": 2
+          },
+          {
+            "id": "cover",
+            "z": 0,
+            "meshes": 10
+          },
+          {
+            "id": "optical-lenses",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "optical-core",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "substrate",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "carrier",
+            "z": 0,
+            "meshes": 2
+          }
+        ]
+      }
+    },
+    {
+      "surface": "frosted",
+      "stats": {
+        "ready": true,
+        "clarity": 0,
+        "targetClarity": 0,
+        "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "pathTracing": {
+          "engine": "three-gpu-pathtracer",
+          "version": "0.0.24",
+          "samples": 64,
+          "bounces": 16,
+          "transmissionBounces": 32,
+          "width": 1920,
+          "height": 1200,
+          "triangleGeometry": true,
+          "areaLights": 3,
+          "denoiser": "glslSmartDeNoise"
+        },
+        "spread": 0,
+        "target": 0,
+        "distance": 14.50103444585936,
+        "targetPosition": [
+          0,
+          0,
+          0
+        ],
+        "azimuth": 0.5404195002705843,
+        "polar": 1.3056502214105623,
+        "parts": [
+          {
+            "id": "fasteners",
+            "z": 0,
+            "meshes": 2
+          },
+          {
+            "id": "cover",
+            "z": 0,
+            "meshes": 10
+          },
+          {
+            "id": "optical-lenses",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "optical-core",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "substrate",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "carrier",
+            "z": 0,
+            "meshes": 2
+          }
+        ]
+      }
+    },
+    {
+      "surface": "clear",
+      "stats": {
+        "ready": true,
+        "clarity": 1,
+        "targetClarity": 1,
+        "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "pathTracing": {
+          "engine": "three-gpu-pathtracer",
+          "version": "0.0.24",
+          "samples": 64,
+          "bounces": 16,
+          "transmissionBounces": 32,
+          "width": 1920,
+          "height": 1200,
+          "triangleGeometry": true,
+          "areaLights": 3,
+          "denoiser": "glslSmartDeNoise"
+        },
+        "spread": 0,
+        "target": 0,
+        "distance": 14.50103444585936,
+        "targetPosition": [
+          0,
+          0,
+          0
+        ],
+        "azimuth": 0.5404195002705843,
+        "polar": 1.3056502214105623,
+        "parts": [
+          {
+            "id": "fasteners",
+            "z": 0,
+            "meshes": 2
+          },
+          {
+            "id": "cover",
+            "z": 0,
+            "meshes": 10
+          },
+          {
+            "id": "optical-lenses",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "optical-core",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "substrate",
+            "z": 0,
+            "meshes": 3
+          },
+          {
+            "id": "carrier",
+            "z": 0,
+            "meshes": 2
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "returnedClarity": 1
+}

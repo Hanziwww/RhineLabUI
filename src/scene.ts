@@ -15,6 +15,8 @@ import {
   graphicsBackend,
 } from "./archive-rendering";
 import { CardAppearance } from "./appearance";
+import { configureInternalOptics } from "./internal-optics";
+import { DecryptionController } from "./decryption";
 import type {
   ArchivePathTracer,
   ArchiveTraceState,
@@ -57,7 +59,7 @@ const HOVER_LIFT = 0.18;
 export class ArchiveScene {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene = new THREE.Scene();
-  readonly camera = new THREE.PerspectiveCamera(34, 16 / 9, 0.1, 300);
+  readonly camera = new THREE.PerspectiveCamera(34, 16 / 9, 5, 300);
   private composer: EffectComposer;
   private ao: SSAOPass;
   private bokeh: BokehPass;
@@ -65,6 +67,7 @@ export class ArchiveScene {
   private instances: THREE.InstancedMesh[] = [];
   private model = new THREE.Group();
   private appearance = new CardAppearance();
+  private decryption = new DecryptionController();
   private cursor = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
   private hoveredCell: ArchiveCell | null = null;
@@ -100,6 +103,7 @@ export class ArchiveScene {
     cell: ArchiveCell;
     lift: { value: number; velocity: number };
     returnY: number | null;
+    clarity: number;
   }[] = [];
   private pulses: { row: number; lane: number; time: number }[] = [];
   private pendingPulse: ArchiveCell | null = null;
@@ -282,20 +286,6 @@ export class ArchiveScene {
         mat.ior = 1.46;
         mat.attenuationColor = new THREE.Color("#eee6df");
         mat.attenuationDistance = 2;
-        mat.onBeforeCompile = (shader) => {
-          shader.vertexShader =
-            "varying float vArchiveHeight;\n" + shader.vertexShader;
-          shader.vertexShader = shader.vertexShader.replace(
-            "#include <begin_vertex>",
-            "#include <begin_vertex>\nvArchiveHeight = position.y / 3.7;",
-          );
-          shader.fragmentShader =
-            "varying float vArchiveHeight;\n" + shader.fragmentShader;
-          shader.fragmentShader = shader.fragmentShader.replace(
-            "#include <roughnessmap_fragment>",
-            "#include <roughnessmap_fragment>\nroughnessFactor = mix(0.48, 0.035, smoothstep(0.36, 0.68, vArchiveHeight));",
-          );
-        };
         if (this.lightingLook === "warm") {
           mat.userData.acrylic = true;
           mat.roughness = 0.065;
@@ -347,14 +337,7 @@ export class ArchiveScene {
         mat.roughness = 0.26;
         mat.metalness = 0.08;
       }
-      if (name === "Amber_Lightguide") {
-        // The guide sits only 0.002 ahead of the cover. At the long camera
-        // distance that gap can quantize to one depth value at oblique angles.
-        // Bias this narrow overlay only; retain the camera and global AO depth.
-        mat.polygonOffset = true;
-        mat.polygonOffsetFactor = -1;
-        mat.polygonOffsetUnits = -2;
-      }
+      configureInternalOptics(name, mat);
       if (name === "Carbon_Ink") continue;
       const selectedMesh = new THREE.Mesh(geom, mat);
       selectedMesh.userData.surface = name;
@@ -365,6 +348,9 @@ export class ArchiveScene {
             "Internal_Ceramic",
             "Subsurface_Optics",
             "Titanium_Fasteners",
+            "Index_Inlay",
+            "Optical_Facade_Ribs",
+            "Amber_Optical_Inlay",
             "Champagne_Index",
           ].includes(name));
       selectedMesh.receiveShadow = true;
@@ -376,7 +362,7 @@ export class ArchiveScene {
           "Frosted_Polymer",
           "Ivory_Edges",
           "Titanium_Fasteners",
-          "Champagne_Index",
+          "Index_Inlay",
           "Optical_Diffuser",
         ].includes(name)
       ) {
@@ -429,7 +415,7 @@ export class ArchiveScene {
       if (mat.userData.frosted) {
         arrayMat.transmission = name === "Frosted_Polymer" ? 0.14 : 0.04;
       }
-      if (name === "Champagne_Index") {
+      if (name === "Index_Inlay") {
         arrayMat.color.set("#e4d6c5");
         arrayMat.metalness = 0.05;
       }
@@ -512,6 +498,7 @@ export class ArchiveScene {
     });
     this.appearance.prepare(model);
     this.appearance.apply(model, 1);
+    this.appearance.setClarity(model, this.decryption.clarity);
     const canvas = document.createElement("canvas");
     canvas.width = this.labelCanvas.width;
     canvas.height = this.labelCanvas.height;
@@ -534,6 +521,7 @@ export class ArchiveScene {
     meshes.push(label);
     return {
       model,
+      setClarity: (value: number) => this.appearance.setClarity(model, value),
       dispose: () => {
         for (const mesh of meshes) {
           mesh.geometry.dispose();
@@ -544,6 +532,12 @@ export class ArchiveScene {
     };
   }
   setMode(mode: "hidden" | "archive" | "detail") {
+    if (mode === "detail")
+      this.decryption.enter(
+        this.scanBlend > 0.9 && this.decryption.clarity > 0.999,
+      );
+    else this.decryption.leave();
+    if (mode === "hidden") this.decryption.select();
     this.pathTracer?.invalidate();
     if (mode !== "archive") {
       this.setHoveredCell(null);
@@ -741,6 +735,7 @@ export class ArchiveScene {
         depthWrite: false,
       });
       this.appearance.apply(group, ease(this.lift.value / 0.4));
+      this.appearance.setClarity(group, this.decryption.clarity);
       this.scene.add(group);
       this.outgoing.push({
         group,
@@ -748,6 +743,7 @@ export class ArchiveScene {
         cell: { ...this.selectedCell },
         lift: { ...this.lift },
         returnY: group.rotation.y !== 0 ? group.position.y : null,
+        clarity: this.decryption.clarity,
       });
       this.lift.value = 0;
       this.lift.velocity = 0;
@@ -756,6 +752,7 @@ export class ArchiveScene {
     this.selectedIndex = index;
     this.selectedCell = cell;
     if (changed) {
+      this.decryption.select();
       this.rotation = 0;
       this.returnY = null;
     }
@@ -765,10 +762,12 @@ export class ArchiveScene {
       this.lift = { ...o.lift };
       this.rotation = o.group.rotation.y;
       this.returnY = o.returnY;
+      this.decryption.select(o.clarity);
       this.scene.remove(o.group);
       this.appearance.dispose(o.group);
       this.outgoing.splice(returning, 1);
     }
+    if (changed && this.targetDetail) this.decryption.enter();
     if (this.deferSelectionPulse) {
       this.pendingPulse = this.looping ? { ...cell } : null;
     } else this.emitPulse(cell);
@@ -1149,7 +1148,14 @@ export class ArchiveScene {
       ? cinematic.zoom
       : THREE.MathUtils.lerp(this.detail, cameraTarget, blend);
     const detail = this.detail;
+    this.decryption.update(
+      dt,
+      detail > 0.78 && this.lift.value > 3.3,
+      this.reduced,
+      cinematic ? shot + 5 : undefined,
+    );
     this.appearance.apply(this.model, ease(this.lift.value / 0.4));
+    this.appearance.setClarity(this.model, this.decryption.clarity);
     // Reference 26.92–27.76: the array travels horizontally into a white field.
     const entry = cinematic ? ease((shot - 21.9) / 0.86) : this.reveal;
     const entranceTime = THREE.MathUtils.clamp((shot - 21.92) / 0.75, 0, 1);
@@ -1173,6 +1179,8 @@ export class ArchiveScene {
       );
       const quality = ease(o.lift.value / 0.4);
       this.appearance.apply(o.group, quality);
+      o.clarity = this.reduced ? 0 : o.clarity * Math.exp(-dt * 9);
+      this.appearance.setClarity(o.group, o.clarity);
       const { row, lane } = o.cell;
       o.group.rotation.x =
         (field(row + 0.5, lane) - field(row - 0.5, lane)) *
@@ -1488,6 +1496,9 @@ export class ArchiveScene {
         // Finish the approved wave, hover lift and camera springs before taking
         // a tracing snapshot. Only the continuous idle wave rests in this mode.
         const moving =
+          (Boolean(this.targetDetail) &&
+            this.decryption.frame.phase !== "clear") ||
+          (!this.targetDetail && this.decryption.clarity > 0.0001) ||
           this.dragging ||
           this.returnY !== null ||
           this.outgoing.length > 0 ||
@@ -1523,6 +1534,14 @@ export class ArchiveScene {
   get detailVisibility() {
     return ease((this.detail - 0.25) / 0.55);
   }
+  get decryptionFrame() {
+    return this.decryption.frame;
+  }
+  finishDecryption() {
+    this.decryption.finish();
+    this.appearance.setClarity(this.model, 1);
+    this.pathTracer?.invalidate();
+  }
   getStats() {
     this.model.updateMatrixWorld(true);
     const project = (x: number, y: number, z: number) => {
@@ -1532,6 +1551,10 @@ export class ArchiveScene {
       return [Math.round((p.x + 1) * 960), Math.round((1 - p.y) * 540)];
     };
     return {
+      decryption: {
+        ...this.decryption.frame,
+        clarity: this.decryption.clarity,
+      },
       topLeft: project(-2.5, 3.7, 0),
       topRight: project(2.5, 3.7, 0),
       labelTopLeft: project(-1.855, 3.27, 0.255),

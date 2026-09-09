@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { glassRevealGLSL } from "./glass-reveal.ts";
+import { internalOpticsFragment } from "./internal-optics.ts";
 
 type Surface = THREE.MeshPhysicalMaterial;
 type Palette = { high: Surface; low?: Surface };
@@ -20,13 +22,21 @@ export class CardAppearance {
       if (!palette) continue;
       const mat = palette.high.clone();
       const amount = { value: 0 };
+      const clarity = { value: 0 };
       mesh.material = mat;
+      if (mat.userData.opticalOrder)
+        mesh.renderOrder = mat.userData.opticalOrder;
       mesh.userData.appearance = amount;
+      mesh.userData.glassClarity = clarity;
       mat.onBeforeCompile = (shader) => {
+        if (mat.userData.opticalOrder)
+          shader.fragmentShader = internalOpticsFragment(shader.fragmentShader);
         shader.uniforms.archiveQuality = amount;
+        shader.uniforms.archiveClarity = clarity;
         shader.fragmentShader =
-          "uniform float archiveQuality;\n" + shader.fragmentShader;
-        if (name === "Frosted_Polymer" && !palette.high.userData.frosted) {
+          "uniform float archiveQuality;\nuniform float archiveClarity;\n" +
+          shader.fragmentShader;
+        if (name === "Frosted_Polymer") {
           shader.vertexShader =
             "varying float vArchiveHeight;\n" + shader.vertexShader;
           shader.vertexShader = shader.vertexShader.replace(
@@ -34,16 +44,17 @@ export class CardAppearance {
             "#include <begin_vertex>\nvArchiveHeight = position.y / 3.7;",
           );
           shader.fragmentShader =
-            "varying float vArchiveHeight;\n" + shader.fragmentShader;
+            "varying float vArchiveHeight;\n" +
+            glassRevealGLSL +
+            shader.fragmentShader;
           shader.fragmentShader = shader.fragmentShader.replace(
             "#include <color_fragment>",
             "#include <color_fragment>\ndiffuseColor.rgb *= mix(mix(vec3(0.40, 0.30, 0.20), vec3(1.0, 0.98, 0.94), smoothstep(0.1, 1.0, vArchiveHeight)), vec3(1.0), archiveQuality);",
           );
-          if (!palette.high.userData.acrylic)
-            shader.fragmentShader = shader.fragmentShader.replace(
-              "#include <roughnessmap_fragment>",
-              "#include <roughnessmap_fragment>\nroughnessFactor = mix(0.28, mix(0.48, 0.035, smoothstep(0.36, 0.68, vArchiveHeight)), archiveQuality);",
-            );
+          shader.fragmentShader = shader.fragmentShader.replace(
+            "#include <roughnessmap_fragment>",
+            "#include <roughnessmap_fragment>\nroughnessFactor = mix(mix(0.28, 0.48, archiveQuality), 0.025, glassRevealAtHeight(archiveClarity, vArchiveHeight));",
+          );
         } else if (!palette.low) {
           // Stable screen-space coverage adds internal geometry without an
           // abrupt visibility toggle or a second transparent body.
@@ -54,8 +65,53 @@ export class CardAppearance {
         }
       };
       mat.customProgramCacheKey = () =>
-        `archive-surface-${name}-${Boolean(palette.low)}-${Boolean(palette.high.userData.frosted)}-${Boolean(palette.high.userData.acrylic)}`;
+        `archive-surface-clarity-${name}-${Boolean(palette.low)}`;
     }
+  }
+
+  setClarity(group: THREE.Group, value: number) {
+    const clarity = THREE.MathUtils.clamp(value, 0, 1);
+    // Traversal still works after the viewer reparents meshes into part groups.
+    group.traverse((child) => {
+      if (!(child instanceof THREE.Mesh) || !child.userData.glassClarity)
+        return;
+      child.userData.glassClarity.value = clarity;
+      if (child.userData.surface !== "Frosted_Polymer") return;
+      const mat = child.material as Surface;
+      const palette = this.palettes.get("Frosted_Polymer")!;
+      const quality = child.userData.appearance.value as number;
+      const baseline = (
+        key: "thickness" | "transmission" | "attenuationDistance",
+      ) =>
+        THREE.MathUtils.lerp(
+          palette.low?.[key] ?? palette.high[key],
+          palette.high[key],
+          quality,
+        );
+      mat.thickness = THREE.MathUtils.lerp(
+        baseline("thickness"),
+        0.018,
+        clarity,
+      );
+      mat.transmission = THREE.MathUtils.lerp(
+        baseline("transmission"),
+        0.985,
+        clarity,
+      );
+      mat.attenuationDistance = THREE.MathUtils.lerp(
+        baseline("attenuationDistance"),
+        8,
+        clarity,
+      );
+      // The path tracer consumes physical properties, not onBeforeCompile.
+      // During the moving front rasterization supplies the per-height shader;
+      // its stationary endpoints must match the traced material as well.
+      mat.roughness = THREE.MathUtils.lerp(
+        THREE.MathUtils.lerp(0.28, 0.48, quality),
+        0.025,
+        clarity,
+      );
+    });
   }
 
   apply(group: THREE.Group, value: number) {

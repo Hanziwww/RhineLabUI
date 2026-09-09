@@ -28,7 +28,8 @@
     "check:reader": "node scripts/check-reader-browser.mjs",
     "check:editing": "node scripts/check-editing-browser.mjs",
     "check:production": "node scripts/check-production.mjs",
-    "check:boot": "node scripts/check-boot-interaction.mjs"
+    "check:boot": "node scripts/check-boot-interaction.mjs",
+    "check:upstream": "node scripts/check-upstream-browser.mjs"
   },
   "dependencies": {
     "@kitlangton/rolling-number": "0.4.1",

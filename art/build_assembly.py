@@ -10,11 +10,11 @@ prefix = prefix.replace("scene.name='Rhine_Archive_Asset'", "scene.name='Rhine_A
 exec(compile(prefix, str(ROOT/'art/build_archive.py'), 'exec'))
 ROOT = BUILD_ROOT
 def part_for(name):
-    if name.startswith(('Rear translucent carrier', 'Polished perimeter rail', 'Ivory spine cap')):
+    if name.startswith(('Rear translucent carrier', 'Polished perimeter rail', 'Ivory spine cap', 'Carrier mating seam')):
         return 'carrier'
     if name.startswith('Information substrate'): return 'substrate'
-    if name.startswith(('Embedded optical cavity', 'Embedded amber annulus')): return 'optical-core'
-    if name.startswith(('Subsurface refractive shoulder', 'Inner optical bevel', 'Concentric optical machining')):
+    if name.startswith(('Embedded optical cavity', 'Embedded amber annulus', 'Folded optical tab')): return 'optical-core'
+    if name.startswith(('Subsurface refractive shoulder', 'Inner optical bevel', 'Concentric optical machining', 'Optical ribbon')):
         return 'optical-lenses'
     if name.startswith(('Countersunk washer', 'Machined screw', 'Screw slot')): return 'fasteners'
     return 'cover'
@@ -43,8 +43,15 @@ for (part, surface), objects in pairs.items():
     scene.cursor.location = (0,0,0)
     bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
-    for vertex in obj.data.vertices: vertex.co.y *= 2.0
+    if surface.startswith(('Optical_Glass_', 'Optical_Bridge_Glass', 'Amber_Optical_Inlay')):
+        obj.scale.y *= 2.0
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    else:
+        for vertex in obj.data.vertices:vertex.co.y *= 2.0
 bpy.ops.object.select_all(action='SELECT')
-bpy.ops.export_scene.gltf(filepath=str(ROOT/'public/assets/archive-assembly.glb'), export_format='GLB', use_selection=True, use_active_scene=True, export_apply=True, export_extras=True)
-bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'art/archive-assembly.blend'))
+export_path=ROOT/'art/.cache/archive-assembly.glb'
+export_path.parent.mkdir(parents=True,exist_ok=True)
+bpy.ops.export_scene.gltf(filepath=str(export_path), export_format='GLB', use_selection=True, use_active_scene=True, export_apply=True, export_extras=True)
+os.replace(str(export_path),str(ROOT/'public/assets/archive-assembly.glb'))
+bpy.data.libraries.write(str(ROOT/'art/archive-assembly.blend'), {scene}, fake_user=True)
 print('Assembly exported:', len(scene.objects), 'meshes, parts:', sorted({o['assemblyPart'] for o in scene.objects}))

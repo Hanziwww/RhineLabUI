@@ -1,0 +1,909 @@
+{
+  "upstream": "dde61fd",
+  "reference": [
+    {
+      "name": "boot",
+      "passed": true,
+      "checks": [
+        {
+          "name": "白场后第一帧为空，下一帧开始输入 A",
+          "passed": true
+        },
+        {
+          "name": "ACCESS 在第 175 帧完成，整句在第 187 帧完成",
+          "passed": true
+        },
+        {
+          "name": "身份确认先停顿，再输入姓名",
+          "passed": true
+        },
+        {
+          "name": "请求接收与开始处理之间确实清空",
+          "passed": true
+        },
+        {
+          "name": "圆环收拢中保留第 525、526、528、529 帧跳变",
+          "passed": true
+        },
+        {
+          "name": "圆环中心切换与欢迎页切换各自落在指定帧",
+          "passed": true
+        },
+        {
+          "name": "欢迎闪切、黑底长尾扫过、第三行分三次出现",
+          "passed": true
+        },
+        {
+          "name": "品牌三行间隔两帧、分别移动与显现",
+          "passed": true
+        },
+        {
+          "name": "品牌先加速后减速，并延续至第 305 帧",
+          "passed": true
+        },
+        {
+          "name": "遮罩快速扫过后长尾收束，灰闪帧仍保留层",
+          "passed": true
+        },
+        {
+          "name": "内环与橙点分别减速，白环独立收拢",
+          "passed": true
+        },
+        {
+          "name": "两侧小弧提前出现，逐渐补全到近完整圆",
+          "passed": true
+        },
+        {
+          "name": "两侧小弧反向自转，后段角速度降低",
+          "passed": true
+        },
+        {
+          "name": "大圆点闪变后缩小并缓慢稳定，文字渐退至 551 帧",
+          "passed": true
+        },
+        {
+          "name": "六颗中央小点错峰出现并沿小轨道转动",
+          "passed": true
+        },
+        {
+          "name": "Logo 绘制首尾均移动，后段变为移动缺口",
+          "passed": true
+        },
+        {
+          "name": "加号与方点同帧从内侧展开，方点再拉成横线",
+          "passed": true
+        },
+        {
+          "name": "移动缺口不使整个 Logo 闪烁",
+          "passed": true
+        },
+        {
+          "name": "欢迎页在第 673 帧退出并清除背景",
+          "passed": true
+        },
+        {
+          "name": "507 帧正序与倒序计算完全一致",
+          "passed": true
+        },
+        {
+          "name": "外环半径持续收拢，文字字距收紧",
+          "passed": true
+        },
+        {
+          "name": "实际页面跨阶段倒退后回到相同画面",
+          "passed": true
+        },
+        {
+          "name": "小圆和六颗环绕点正反跳帧保持一致",
+          "passed": true
+        },
+        {
+          "name": "实际 Logo 使用单条连续轮廓，移动缺口时保持不透明",
+          "passed": true
+        },
+        {
+          "name": "灰闪帧遮罩和未扫过的文字仍然显示",
+          "passed": true
+        },
+        {
+          "name": "倒退恢复白色反相文字",
+          "passed": true
+        },
+        {
+          "name": "实际页面的前段不依赖 CSS 循环动画",
+          "passed": true
+        },
+        {
+          "name": "绘制标志时跳过恢复完整角标",
+          "passed": true
+        },
+        {
+          "name": "重入欢迎页仍能显示三行和标志",
+          "passed": true
+        },
+        {
+          "name": "前段结束后衔接原有档案阵列阶段",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "depth",
+      "passed": true,
+      "samples": [
+        {
+          "time": 27,
+          "visible": 141,
+          "nearest": 31.830825519243866,
+          "near": 5
+        },
+        {
+          "time": 27.2,
+          "visible": 347,
+          "nearest": 18.26111710683894,
+          "near": 5
+        },
+        {
+          "time": 27.6,
+          "visible": 682,
+          "nearest": 16.66211929475735,
+          "near": 5
+        },
+        {
+          "time": 28,
+          "visible": 688,
+          "nearest": 17.21012117413516,
+          "near": 5
+        },
+        {
+          "time": 29,
+          "visible": 763,
+          "nearest": 23.3281775826031,
+          "near": 5
+        },
+        {
+          "time": 30,
+          "visible": 706,
+          "nearest": 44.982125617023726,
+          "near": 5
+        },
+        {
+          "time": 31,
+          "visible": 695,
+          "nearest": 120.41583601423115,
+          "near": 5
+        },
+        {
+          "time": 32,
+          "visible": 691,
+          "nearest": 128.6508382435373,
+          "near": 5
+        },
+        {
+          "time": 34,
+          "visible": 409,
+          "nearest": 100.07927767532789,
+          "near": 5
+        },
+        {
+          "time": 36,
+          "visible": 315,
+          "nearest": 90.62115393719716,
+          "near": 5
+        },
+        {
+          "time": 39.6,
+          "visible": 228,
+          "nearest": 69.9118712659221,
+          "near": 5
+        }
+      ]
+    },
+    {
+      "name": "decryption",
+      "passed": true,
+      "checks": [
+        {
+          "name": "投影后的两段线严格共线",
+          "passed": true
+        },
+        {
+          "name": "详情解密结束后变清晰且线消失",
+          "passed": true
+        },
+        {
+          "name": "长焦详情使用足够精度的近裁剪面",
+          "passed": true
+        },
+        {
+          "name": "磨砂有连续过渡",
+          "passed": true
+        },
+        {
+          "name": "快速反向切换回清晰保留镜头",
+          "passed": true
+        },
+        {
+          "name": "拆解后仍可切换玻璃模式",
+          "passed": true
+        },
+        {
+          "name": "退出查看器后原档案保持清晰",
+          "passed": true
+        },
+        {
+          "name": "解密中退出及时清除标记",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "trace-fade",
+      "passed": true,
+      "checks": [
+        {
+          "opacity": 0,
+          "expected": [
+            51,
+            77,
+            102
+          ],
+          "actual": [
+            51,
+            76,
+            102,
+            255
+          ],
+          "passed": true
+        },
+        {
+          "opacity": 0.25,
+          "expected": [
+            89,
+            102,
+            115
+          ],
+          "actual": [
+            89,
+            102,
+            114,
+            255
+          ],
+          "passed": true
+        },
+        {
+          "opacity": 0.5,
+          "expected": [
+            128,
+            128,
+            128
+          ],
+          "actual": [
+            128,
+            127,
+            127,
+            255
+          ],
+          "passed": true
+        },
+        {
+          "opacity": 0.75,
+          "expected": [
+            166,
+            153,
+            140
+          ],
+          "actual": [
+            166,
+            153,
+            141,
+            255
+          ],
+          "passed": true
+        },
+        {
+          "opacity": 1,
+          "expected": [
+            204,
+            179,
+            153
+          ],
+          "actual": [
+            204,
+            178,
+            153,
+            255
+          ],
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "sites": [
+    {
+      "id": "rhine",
+      "joining": {
+        "phase": "joining",
+        "path": "M463.0903622520706,583.1468540926453L463.10412746463186,583.1341890129107M982.7334416965356,105.0342927810998L982.7469170938087,105.02189435425691",
+        "trace": {
+          "engine": "three-gpu-pathtracer",
+          "state": "interactive",
+          "samples": 0,
+          "sampleLimit": 512,
+          "width": 1,
+          "height": 1,
+          "triangles": 0,
+          "expandedInstances": 0,
+          "builds": 0,
+          "buildProgress": 0,
+          "geometry": "actual-triangles",
+          "worker": true,
+          "areaLights": 3
+        }
+      },
+      "clear": {
+        "stats": {
+          "decryption": {
+            "time": 39.56,
+            "intervals": [],
+            "markers": 0,
+            "point": 0,
+            "label": 0,
+            "labelValue": 1,
+            "clarity": 1,
+            "phase": "clear"
+          },
+          "topLeft": [
+            98,
+            288
+          ],
+          "topRight": [
+            989,
+            237
+          ],
+          "labelTopLeft": [
+            227,
+            360
+          ],
+          "labelBottomLeft": [
+            228,
+            435
+          ],
+          "modelPosition": [
+            0,
+            1.6537,
+            -2.17
+          ],
+          "cameraPosition": [
+            -17.7876,
+            20.7565,
+            65.4686
+          ],
+          "fieldOfView": 5.213145934441284,
+          "cameraNear": 12.000000000000057,
+          "cameraFar": 132.00000000000006,
+          "antialias": "SMAA",
+          "shadows": {
+            "method": "PCF",
+            "resolution": 4096,
+            "exactGeometry": true
+          },
+          "surface": "clear-acrylic",
+          "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "pathTracing": {
+            "engine": "three-gpu-pathtracer",
+            "state": "refining",
+            "samples": 64,
+            "sampleLimit": 512,
+            "width": 1920,
+            "height": 1200,
+            "triangles": 1273016,
+            "expandedInstances": 1435,
+            "builds": 1,
+            "buildProgress": 1,
+            "geometry": "actual-triangles",
+            "worker": true,
+            "areaLights": 3
+          },
+          "renderSize": {
+            "width": 1920,
+            "height": 1200,
+            "msaa": 4,
+            "depthOfField": false
+          },
+          "shellMaterials": [
+            {
+              "name": "Frosted_Polymer",
+              "normalMap": false,
+              "roughnessMap": false,
+              "roughness": 0.025,
+              "transmission": 0.985
+            },
+            {
+              "name": "Ivory_Edges",
+              "normalMap": false,
+              "roughnessMap": false,
+              "roughness": 0.12,
+              "transmission": 0.88
+            }
+          ],
+          "aoProjectionSynced": true,
+          "loaded": true,
+          "drawCalls": 2,
+          "triangles": 2,
+          "archiveCount": 288,
+          "returningFiles": 0,
+          "selectionPhase": "settled",
+          "pendingPulse": null,
+          "pulses": [],
+          "referenceTime": 56.45,
+          "selectedSlot": 76,
+          "selectedLane": 2,
+          "selectedCell": {
+            "lane": 2,
+            "row": 12
+          },
+          "hoveredCell": null,
+          "hoverLifts": [],
+          "coordinateOrigin": {
+            "lane": 0,
+            "row": 0
+          },
+          "poolBounds": {
+            "minLane": -2,
+            "maxLane": 6,
+            "minRow": -3,
+            "maxRow": 28
+          },
+          "laneFocus": 2,
+          "columnCamera": 0,
+          "rotation": 0,
+          "clearance": 0.3635096867709633,
+          "canInspect": true,
+          "returnPhase": "lowering",
+          "extraction": 4.05,
+          "appearance": 1,
+          "cameraDetail": 1,
+          "idleGain": 0,
+          "cameraDistance": 72.00000000000006,
+          "fogNear": 76.00000000000006,
+          "fogFar": 96.00000000000006,
+          "returningAppearance": [],
+          "rail": 0,
+          "fps": 59,
+          "mode": "detail",
+          "selected": "X-001",
+          "saved": []
+        },
+        "opacity": "0",
+        "path": ""
+      },
+      "final": {
+        "decryption": {
+          "time": 39.56,
+          "intervals": [],
+          "markers": 0,
+          "point": 0,
+          "label": 0,
+          "labelValue": 1,
+          "clarity": 1,
+          "phase": "clear"
+        },
+        "topLeft": [
+          98,
+          288
+        ],
+        "topRight": [
+          989,
+          237
+        ],
+        "labelTopLeft": [
+          227,
+          360
+        ],
+        "labelBottomLeft": [
+          228,
+          435
+        ],
+        "modelPosition": [
+          0,
+          1.6537,
+          -2.17
+        ],
+        "cameraPosition": [
+          -17.7886,
+          20.7568,
+          65.4693
+        ],
+        "fieldOfView": 5.213091934356915,
+        "cameraNear": 12.001004824541965,
+        "cameraFar": 132.00100482454195,
+        "antialias": "SMAA",
+        "shadows": {
+          "method": "PCF",
+          "resolution": 4096,
+          "exactGeometry": true
+        },
+        "surface": "clear-acrylic",
+        "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "pathTracing": {
+          "engine": "three-gpu-pathtracer",
+          "state": "interactive",
+          "samples": 0,
+          "sampleLimit": 512,
+          "width": 1920,
+          "height": 1200,
+          "triangles": 1273016,
+          "expandedInstances": 1435,
+          "builds": 1,
+          "buildProgress": 1,
+          "geometry": "actual-triangles",
+          "worker": true,
+          "areaLights": 3
+        },
+        "renderSize": {
+          "width": 1920,
+          "height": 1200,
+          "msaa": 4,
+          "depthOfField": false
+        },
+        "shellMaterials": [
+          {
+            "name": "Frosted_Polymer",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.025,
+            "transmission": 0.985
+          },
+          {
+            "name": "Ivory_Edges",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.12,
+            "transmission": 0.88
+          }
+        ],
+        "aoProjectionSynced": true,
+        "loaded": true,
+        "drawCalls": 101,
+        "triangles": 5311933,
+        "archiveCount": 288,
+        "returningFiles": 0,
+        "selectionPhase": "settled",
+        "pendingPulse": null,
+        "pulses": [],
+        "referenceTime": 62.25,
+        "selectedSlot": 76,
+        "selectedLane": 2,
+        "selectedCell": {
+          "lane": 2,
+          "row": 12
+        },
+        "hoveredCell": null,
+        "hoverLifts": [],
+        "coordinateOrigin": {
+          "lane": 0,
+          "row": 0
+        },
+        "poolBounds": {
+          "minLane": -2,
+          "maxLane": 6,
+          "minRow": -3,
+          "maxRow": 28
+        },
+        "laneFocus": 2,
+        "columnCamera": 0,
+        "rotation": 0,
+        "clearance": 0.3635093748941278,
+        "canInspect": true,
+        "returnPhase": "lowering",
+        "extraction": 4.05,
+        "appearance": 1,
+        "cameraDetail": 1,
+        "idleGain": 0,
+        "cameraDistance": 72.00100482454197,
+        "fogNear": 76.00101138422805,
+        "fogFar": 96.00101138422805,
+        "returningAppearance": [],
+        "rail": 0,
+        "fps": 160,
+        "mode": "detail",
+        "selected": "X-001",
+        "saved": []
+      }
+    },
+    {
+      "id": "rhine-audiology",
+      "joining": {
+        "phase": "joining",
+        "path": "M469.24327628793316,570.277954083198L469.2592654004202,570.2632808505398M989.9412629574299,92.43262594265529L989.9569168865854,92.41826030824635",
+        "trace": {
+          "engine": "three-gpu-pathtracer",
+          "state": "interactive",
+          "samples": 0,
+          "sampleLimit": 512,
+          "width": 1,
+          "height": 1,
+          "triangles": 0,
+          "expandedInstances": 0,
+          "builds": 0,
+          "buildProgress": 0,
+          "geometry": "actual-triangles",
+          "worker": true,
+          "areaLights": 3
+        }
+      },
+      "clear": {
+        "stats": {
+          "decryption": {
+            "time": 39.56,
+            "intervals": [],
+            "markers": 0,
+            "point": 0,
+            "label": 0,
+            "labelValue": 1,
+            "clarity": 1,
+            "phase": "clear"
+          },
+          "topLeft": [
+            98,
+            288
+          ],
+          "topRight": [
+            989,
+            237
+          ],
+          "labelTopLeft": [
+            227,
+            360
+          ],
+          "labelBottomLeft": [
+            228,
+            435
+          ],
+          "modelPosition": [
+            0,
+            1.6537,
+            -2.17
+          ],
+          "cameraPosition": [
+            -17.7876,
+            20.7565,
+            65.4686
+          ],
+          "fieldOfView": 5.2131459344412825,
+          "cameraNear": 12.000000000000057,
+          "cameraFar": 132.00000000000006,
+          "antialias": "SMAA",
+          "shadows": {
+            "method": "PCF",
+            "resolution": 4096,
+            "exactGeometry": true
+          },
+          "surface": "clear-acrylic",
+          "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "pathTracing": {
+            "engine": "three-gpu-pathtracer",
+            "state": "refining",
+            "samples": 64,
+            "sampleLimit": 512,
+            "width": 1920,
+            "height": 1200,
+            "triangles": 1273016,
+            "expandedInstances": 1435,
+            "builds": 1,
+            "buildProgress": 1,
+            "geometry": "actual-triangles",
+            "worker": true,
+            "areaLights": 3
+          },
+          "renderSize": {
+            "width": 1920,
+            "height": 1200,
+            "msaa": 4,
+            "depthOfField": false
+          },
+          "shellMaterials": [
+            {
+              "name": "Frosted_Polymer",
+              "normalMap": false,
+              "roughnessMap": false,
+              "roughness": 0.025,
+              "transmission": 0.985
+            },
+            {
+              "name": "Ivory_Edges",
+              "normalMap": false,
+              "roughnessMap": false,
+              "roughness": 0.12,
+              "transmission": 0.88
+            }
+          ],
+          "aoProjectionSynced": true,
+          "loaded": true,
+          "drawCalls": 2,
+          "triangles": 2,
+          "archiveCount": 288,
+          "returningFiles": 0,
+          "selectionPhase": "settled",
+          "pendingPulse": null,
+          "pulses": [],
+          "referenceTime": 49.93,
+          "selectedSlot": 20,
+          "selectedLane": 0,
+          "selectedCell": {
+            "lane": 0,
+            "row": 20
+          },
+          "hoveredCell": null,
+          "hoverLifts": [],
+          "coordinateOrigin": {
+            "lane": 0,
+            "row": 0
+          },
+          "poolBounds": {
+            "minLane": -4,
+            "maxLane": 4,
+            "minRow": 4,
+            "maxRow": 35
+          },
+          "laneFocus": 4.1533665807234046e-26,
+          "columnCamera": -10.399999999999995,
+          "rotation": 0,
+          "clearance": 0.3635096867709615,
+          "canInspect": true,
+          "returnPhase": "lowering",
+          "extraction": 4.05,
+          "appearance": 1,
+          "cameraDetail": 1,
+          "idleGain": 0,
+          "cameraDistance": 72.00000000000006,
+          "fogNear": 76.00000000000006,
+          "fogFar": 96.00000000000006,
+          "returningAppearance": [],
+          "rail": -4.96,
+          "fps": 59,
+          "mode": "detail",
+          "selected": "sensorineural-hearing-loss",
+          "saved": []
+        },
+        "opacity": "0",
+        "path": ""
+      },
+      "final": {
+        "decryption": {
+          "time": 39.56,
+          "intervals": [],
+          "markers": 0,
+          "point": 0,
+          "label": 0,
+          "labelValue": 1,
+          "clarity": 1,
+          "phase": "clear"
+        },
+        "topLeft": [
+          98,
+          288
+        ],
+        "topRight": [
+          989,
+          237
+        ],
+        "labelTopLeft": [
+          227,
+          360
+        ],
+        "labelBottomLeft": [
+          228,
+          435
+        ],
+        "modelPosition": [
+          0,
+          1.6537,
+          -2.17
+        ],
+        "cameraPosition": [
+          -17.7889,
+          20.7569,
+          65.4695
+        ],
+        "fieldOfView": 5.2130768837977675,
+        "cameraNear": 12.0012849268942,
+        "cameraFar": 132.0012849268942,
+        "antialias": "SMAA",
+        "shadows": {
+          "method": "PCF",
+          "resolution": 4096,
+          "exactGeometry": true
+        },
+        "surface": "clear-acrylic",
+        "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "pathTracing": {
+          "engine": "three-gpu-pathtracer",
+          "state": "interactive",
+          "samples": 0,
+          "sampleLimit": 512,
+          "width": 1920,
+          "height": 1200,
+          "triangles": 1273016,
+          "expandedInstances": 1435,
+          "builds": 1,
+          "buildProgress": 1,
+          "geometry": "actual-triangles",
+          "worker": true,
+          "areaLights": 3
+        },
+        "renderSize": {
+          "width": 1920,
+          "height": 1200,
+          "msaa": 4,
+          "depthOfField": false
+        },
+        "shellMaterials": [
+          {
+            "name": "Frosted_Polymer",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.025,
+            "transmission": 0.985
+          },
+          {
+            "name": "Ivory_Edges",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.12,
+            "transmission": 0.88
+          }
+        ],
+        "aoProjectionSynced": true,
+        "loaded": true,
+        "drawCalls": 101,
+        "triangles": 5311933,
+        "archiveCount": 288,
+        "returningFiles": 0,
+        "selectionPhase": "settled",
+        "pendingPulse": null,
+        "pulses": [],
+        "referenceTime": 56.59,
+        "selectedSlot": 12,
+        "selectedLane": 0,
+        "selectedCell": {
+          "lane": 0,
+          "row": 24
+        },
+        "hoveredCell": null,
+        "hoverLifts": [],
+        "coordinateOrigin": {
+          "lane": 0,
+          "row": 0
+        },
+        "poolBounds": {
+          "minLane": -4,
+          "maxLane": 4,
+          "minRow": 8,
+          "maxRow": 39
+        },
+        "laneFocus": 1.5669099986958522e-37,
+        "columnCamera": -10.399999999999995,
+        "rotation": 0,
+        "clearance": 0.36350913291990317,
+        "canInspect": true,
+        "returnPhase": "lowering",
+        "extraction": 4.05,
+        "appearance": 1,
+        "cameraDetail": 1,
+        "idleGain": 0,
+        "cameraDistance": 72.0012849268942,
+        "fogNear": 76.00129331545169,
+        "fogFar": 96.00129331545169,
+        "returningAppearance": [],
+        "rail": -7.44,
+        "fps": 160,
+        "mode": "detail",
+        "selected": "conductive-hearing-loss",
+        "saved": []
+      }
+    }
+  ],
+  "errors": []
+}

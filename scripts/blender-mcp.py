@@ -8,7 +8,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('script', type=Path)
 parser.add_argument('--timeout', type=int, default=180)
 args = parser.parse_args()
-code = args.script.read_text(encoding='utf-8')
+script_path = args.script.resolve()
+source = script_path.read_text(encoding='utf-8')
+# The imported builders resolve sibling scripts/assets from __file__. The MCP
+# bridge executes text, so supply the same file context as a normal script run.
+code = f"exec(compile({source!r}, {str(script_path)!r}, 'exec'), {{'__name__': '__main__', '__file__': {str(script_path)!r}}})"
 with socket.create_connection(('127.0.0.1', 9876), timeout=5) as connection:
     connection.settimeout(args.timeout)
     connection.sendall(json.dumps({'type': 'execute', 'code': code, 'strict_json': True}).encode() + b'\0')

@@ -4,6 +4,7 @@ import { DenoiseMaterial, WebGLPathTracer } from "three-gpu-pathtracer";
 import { GenerateMeshBVHWorker } from "three-mesh-bvh/worker";
 import { ArchiveTraceSnapshot } from "./archive-trace-snapshot";
 import { createArchiveEnvironment, WARM_STUDIO } from "./archive-lighting";
+import { denoiseFadeFragment } from "./trace-denoise";
 
 export type ArchiveTraceState =
   | "off"
@@ -79,7 +80,9 @@ export class ArchivePathTracer {
     });
     // Compare display luminance when preserving edges; raw HDR differences
     // otherwise misclassify glass highlights as detail and retain their noise.
-    this.denoise.fragmentShader = this.denoise.fragmentShader.replace(
+    this.denoise.fragmentShader = denoiseFadeFragment(
+      this.denoise.fragmentShader,
+    ).replace(
       "vec4 dC = walkPx - centrPx;",
       `vec4 dC = walkPx - centrPx;
        #ifdef TONE_MAPPING
@@ -100,8 +103,11 @@ export class ArchivePathTracer {
     );
     this.tracer = new WebGLPathTracer(renderer);
     this.tracer.setBVHWorker(this.worker);
-    this.tracer.bounces = 8;
-    this.tracer.transmissiveBounces = 20;
+    // The upstream cassette adds closed roof, wall and lower optical layers.
+    // Leave enough traversals for light to exit them; the old budget terminated
+    // paths inside the rings and rendered the translucent structure black.
+    this.tracer.bounces = 16;
+    this.tracer.transmissiveBounces = 32;
     this.tracer.filterGlossyFactor = 0.3;
     this.tracer.textureSize.set(1024, 1024);
     this.tracer.tiles.set(3, 2);

@@ -93,7 +93,8 @@ const shader = {
 };
 body.material.onBeforeCompile(shader, null);
 assert.equal(shader.uniforms.archiveQuality, body.userData.appearance);
-assert.ok(shader.fragmentShader.includes("roughnessFactor = mix(0.28"));
+assert.equal(shader.uniforms.archiveClarity, body.userData.glassClarity);
+assert.ok(shader.fragmentShader.includes("glassRevealAtHeight(archiveClarity"));
 appearance.dispose(returning);
 assert.ok(body.material.color.r > 0);
 console.log(

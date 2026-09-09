@@ -16,6 +16,7 @@
 - 加入构建时 Markdown 编译、公式、脚注、内容校验和 AI 编辑指南，支持可变栏目数及不等长档案列表。
 - 调整透明亚克力材质、暖色光影、响应式布局与交互过渡，并加入 GPU 路径追踪和展开阅读。
 - 引入 IEKB known database，提供 RHINE AUDIOLOGY 英文案例、基因检索、证据分页及可追溯来源。
+- 已同步上游至 [`dde61fd`](https://github.com/LBEILC/RhineLabUI/commit/dde61fd)：连续标志绘制、扫描轨道细节、透明光学内构、齐平外壳和由上至下的解密效果，并适配本站品牌与 GPU 渲染。[合并与验证记录](verification/UPSTREAM-SYNC.md)
 
 ## 站点与功能
 

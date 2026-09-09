@@ -3,8 +3,8 @@
 // A near plane at 0.1 wastes almost all depth precision with a camera 140 away.
 export function archiveDepthRange(distance: number, reference = false) {
   return reference
-    ? { near: 0.1, far: 300 }
-    : { near: Math.max(0.1, distance - 60), far: distance + 60 };
+    ? { near: 5, far: 300 }
+    : { near: Math.max(5, distance - 60), far: distance + 60 };
 }
 
 // Match actual display pixels after the stage's CSS transform. Small displays
