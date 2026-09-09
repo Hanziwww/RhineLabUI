@@ -255,7 +255,11 @@ npm run check:core
 
 ## 来源与许可
 
-本项目改进自 [LBEILC/RhineLabUI](https://github.com/LBEILC/RhineLabUI)，保留上游 [MIT License](LICENSE) 及 `Copyright (c) 2026 LBEILC` 版权声明。上游的代码许可不自动覆盖第三方标志、模型、图像、字体或数据；这些资源继续按各自声明处理。
+本项目新增及修改部分的版权声明为 **`Copyright (c) 2026 Hanziwww`**，同样采用 [MIT License](LICENSE)。
+
+本项目改进自 [LBEILC/RhineLabUI](https://github.com/LBEILC/RhineLabUI)，原始代码的版权声明为 `Copyright (c) 2026 LBEILC`。感谢原作者的开源工作；原有版权声明与 MIT 许可条款完整保留在 [LICENSE](LICENSE) 中。
+
+代码许可不自动覆盖第三方标志、模型、图像、字体或数据；这些资源继续按各自声明处理。
 
 原始风格为非官方学习与交互复刻，相关名称、标志和设定的权利归各自权利人所有；原站中扩展的研究摘要、日期和记录为演示内容。开场身份验证是视觉演示。
 
