@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "Third site: one-item looping, H2 tabs, math, table, image, code and footnotes at 390px",
+    "Stable ID and heading fragment open the requested Markdown tab",
+    "Delayed old document cannot replace a newer archive body",
+    "Body-load failure has an in-reader retry that recovers",
+    "Gene alias search (DFNA3)",
+    "PMID search and mechanism/expression filter retain the original A2ML1 record",
+    "Cell type and evidence filters operate on the same source record",
+    "All 66 unassigned interactions are accessible in two pages",
+    "Expanded reading preserves the interaction page (expanded scroll 350)"
+  ],
+  "errors": []
+}

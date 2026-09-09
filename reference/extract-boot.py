@@ -25,4 +25,3 @@ for sec in range(5,27):
   sheet.paste(im,(x,y+24));d.text((x+8,y+5),f'{fr/25:.2f}s / {fr}',fill='white')
  sheet.save(out/f'second-{sec:02}.jpg',quality=95)
 print('Extracted',551,'frames and 22 consecutive-frame sheets')
-Image.open(out/'0337.jpg').crop((45,105,350,233)).resize((915,384)).save(out.parent/'brand-original.jpg',quality=97)

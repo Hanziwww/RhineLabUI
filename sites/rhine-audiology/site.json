@@ -1,0 +1,62 @@
+{
+  "$schema": "../../schemas/site.schema.json",
+  "id": "rhine-audiology",
+  "locale": "en",
+  "title": "RHINE AUDIOLOGY · INNER EAR KNOWLEDGE BASE",
+  "description": "Explore the IEKB known database through curated phenotype archives, associated genes and traceable evidence.",
+  "port": 5174,
+  "brand": {
+    "name": "RHINE AUDIOLOGY",
+    "subtitle": "INNER EAR KNOWLEDGE BASE",
+    "system": "KNOWLEDGE",
+    "systemAccent": "OS",
+    "company": "RHINE AUDIOLOGY",
+    "database": "INNER EAR KNOWLEDGE BASE",
+    "operator": "RESEARCHER",
+    "markText": "RHINE·AUDIOLOGY",
+    "labelCode": "R A / K B",
+    "exportPrefix": "RHINE-AUDIOLOGY"
+  },
+  "columns": [
+    {
+      "id": "auditory",
+      "title": "Auditory Phenotypes"
+    },
+    {
+      "id": "genetics",
+      "title": "Genetics & Development"
+    },
+    {
+      "id": "injury",
+      "title": "Injury & Protection"
+    },
+    {
+      "id": "cellular",
+      "title": "Cellular & Neural Biology"
+    },
+    {
+      "id": "vestibular",
+      "title": "Vestibular & Other Conditions"
+    }
+  ],
+  "defaultDocument": "sensorineural-hearing-loss",
+  "numberPrefix": "IE-",
+  "labels": {},
+  "theme": {
+    "lighting": "warm",
+    "background": "#e8e5e1",
+    "ink": "#080a08",
+    "accent": "#939078"
+  },
+  "features": {
+    "expandedReader": true,
+    "knowledgeBase": true,
+    "pathTracing": true
+  },
+  "exportNotice": "Adapted from IEKB / Tian-lab. CC BY 4.0 for Tian-lab-authored data; third-party sources retain their terms. See /data/LICENSE.txt.",
+  "attribution": {
+    "text": "IEKB / Tian-lab · Adapted presentation · Source review status retained",
+    "url": "https://doi.org/10.64898/2026.04.06.716823",
+    "license": "/data/LICENSE.txt"
+  }
+}

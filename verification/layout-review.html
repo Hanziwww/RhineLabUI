@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>Archive layout review</title>
+<style>
+  body { margin: 20px; background: #262522; color: #eee; font: 14px sans-serif; }
+  nav { display: flex; gap: 12px; margin-bottom: 16px; }
+  iframe { border: 0; transform-origin: top left; }
+</style>
+<nav aria-label="检查尺寸">
+  <button data-size="390,844">390 × 844</button>
+  <button data-size="1280,720">1280 × 720</button>
+  <button data-size="1920,1080">1920 × 1080</button>
+  <button data-size="2560,1080">2560 × 1080</button>
+</nav>
+<iframe title="实际档案页面" src="/?scene=archive" width="390" height="844"></iframe>
+<script>
+  const frame = document.querySelector('iframe');
+  const fit = () => frame.style.transform = `scale(${Math.min(1, (innerWidth - 40) / frame.width, (innerHeight - 80) / frame.height)})`;
+  document.querySelector('nav').onclick = event => {
+    if (!event.target.dataset.size) return;
+    [frame.width, frame.height] = event.target.dataset.size.split(',');
+    fit();
+  };
+  addEventListener('resize', fit);
+  fit();
+</script>
+</html>

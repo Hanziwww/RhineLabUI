@@ -26,7 +26,7 @@ export class CardAppearance {
         shader.uniforms.archiveQuality = amount;
         shader.fragmentShader =
           "uniform float archiveQuality;\n" + shader.fragmentShader;
-        if (name === "Frosted_Polymer") {
+        if (name === "Frosted_Polymer" && !palette.high.userData.frosted) {
           shader.vertexShader =
             "varying float vArchiveHeight;\n" + shader.vertexShader;
           shader.vertexShader = shader.vertexShader.replace(
@@ -39,10 +39,11 @@ export class CardAppearance {
             "#include <color_fragment>",
             "#include <color_fragment>\ndiffuseColor.rgb *= mix(mix(vec3(0.40, 0.30, 0.20), vec3(1.0, 0.98, 0.94), smoothstep(0.1, 1.0, vArchiveHeight)), vec3(1.0), archiveQuality);",
           );
-          shader.fragmentShader = shader.fragmentShader.replace(
-            "#include <roughnessmap_fragment>",
-            "#include <roughnessmap_fragment>\nroughnessFactor = mix(0.28, mix(0.48, 0.035, smoothstep(0.36, 0.68, vArchiveHeight)), archiveQuality);",
-          );
+          if (!palette.high.userData.acrylic)
+            shader.fragmentShader = shader.fragmentShader.replace(
+              "#include <roughnessmap_fragment>",
+              "#include <roughnessmap_fragment>\nroughnessFactor = mix(0.28, mix(0.48, 0.035, smoothstep(0.36, 0.68, vArchiveHeight)), archiveQuality);",
+            );
         } else if (!palette.low) {
           // Stable screen-space coverage adds internal geometry without an
           // abrupt visibility toggle or a second transparent body.
@@ -53,7 +54,7 @@ export class CardAppearance {
         }
       };
       mat.customProgramCacheKey = () =>
-        `archive-surface-${name}-${Boolean(palette.low)}`;
+        `archive-surface-${name}-${Boolean(palette.low)}-${Boolean(palette.high.userData.frosted)}-${Boolean(palette.high.userData.acrylic)}`;
     }
   }
 

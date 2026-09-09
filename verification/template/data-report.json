@@ -1,0 +1,27 @@
+{
+  "checks": [
+    "All association CSV fields preserved exactly; phenotype groups and stable gene IDs match",
+    "All 4,073 interactions preserved, including 66 outside topic-linked genes",
+    "55,579 complete non-predictive claims match SQLite, including negative predicates and review/verification states",
+    "All 3,444 associated-gene registries and aliases preserved; gene detail pagination is complete",
+    "Known network relations, all 15,963 literature records and data license retained"
+  ],
+  "counts": {
+    "topics": 44,
+    "associatedGenes": 3444,
+    "sourceRecords": 7376,
+    "phenotypeRecords": 6448,
+    "mechanismExpressionRecords": 928,
+    "interactions": 4073,
+    "nonPredictiveClaims": 55579,
+    "unassignedInteractions": 66,
+    "networkRelations": 112753,
+    "networkLinks": 83712,
+    "networkEdges": 29041,
+    "articles": 15963,
+    "clingen": 190,
+    "hhl": 223
+  },
+  "largestDataFileBytes": 2098848,
+  "dataBytes": 273745015
+}

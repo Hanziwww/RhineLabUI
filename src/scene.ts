@@ -1,3 +1,5 @@
+import { site } from "./site";
+import { records } from "./data";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createArchiveLighting, type LightingLook } from "./archive-lighting";
@@ -7,9 +9,16 @@ import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
-import { normalizeQuality, type RenderQuality } from "./render-quality";
-import { applyTextureQuality, resizeQuality } from "./quality-renderer";
+import {
+  archiveDepthRange,
+  archivePixelRatio,
+  graphicsBackend,
+} from "./archive-rendering";
 import { CardAppearance } from "./appearance";
+import type {
+  ArchivePathTracer,
+  ArchiveTraceState,
+} from "./archive-pathtracer";
 import { fileAtSlot, fileLocation } from "./data";
 import {
   cellKey,
@@ -44,6 +53,7 @@ const ease = (t: number) => {
   t = THREE.MathUtils.clamp(t, 0, 1);
   return t * t * t * (t * (t * 6 - 15) + 10);
 };
+const HOVER_LIFT = 0.18;
 export class ArchiveScene {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene = new THREE.Scene();
@@ -51,11 +61,19 @@ export class ArchiveScene {
   private composer: EffectComposer;
   private ao: SSAOPass;
   private bokeh: BokehPass;
+  private antialias: SMAAPass;
   private instances: THREE.InstancedMesh[] = [];
   private model = new THREE.Group();
   private appearance = new CardAppearance();
   private cursor = new THREE.Vector2();
   private raycaster = new THREE.Raycaster();
+  private hoveredCell: ArchiveCell | null = null;
+  private hoverLifts = new Map<
+    string,
+    { cell: ArchiveCell; value: number; velocity: number }
+  >();
+  private hoverAnchor?: THREE.Mesh;
+  private pointerOverCanvas = false;
   private dummy = new THREE.Object3D();
   private positions: THREE.Vector3[] = [];
   private cells: ArchiveCell[] = [];
@@ -86,6 +104,7 @@ export class ArchiveScene {
   private pulses: { row: number; lane: number; time: number }[] = [];
   private pendingPulse: ArchiveCell | null = null;
   private selectedSlot = 76;
+  private selectedIndex = 0;
   private detail = 0;
   private targetDetail = 0;
   private reveal = 0;
@@ -102,11 +121,16 @@ export class ArchiveScene {
   private labelTexture?: THREE.CanvasTexture;
   private labelMark = new Image();
   private reduced = false;
-  private quality = normalizeQuality(undefined);
-  private appliedQuality = "";
-  private smaa = new SMAAPass();
-  private aoKernelSize = 32;
+  private highQuality = true;
+  private gpuBackend: string;
+  private pathTracer?: ArchivePathTracer;
+  private traceWanted = false;
+  private traceLoading = false;
+  private traceTicket = 0;
+  private traceState: ArchiveTraceState = "off";
+  onPathTracingState?: (state: ArchiveTraceState) => void;
   onSelect?: (index: number, cell?: ArchiveCell) => void;
+  onOpen?: () => void;
   onHover?: (index: number | null) => void;
   constructor(
     private container: HTMLElement,
@@ -119,14 +143,19 @@ export class ArchiveScene {
       alpha: false,
       powerPreference: "high-performance",
     });
+    this.gpuBackend = graphicsBackend(this.renderer.getContext());
     this.renderer.setPixelRatio(
-      Math.min(devicePixelRatio, 1.5) *
-        Math.min(innerWidth / 1920, innerHeight / 1080),
+      archivePixelRatio(
+        container.clientWidth,
+        container.clientHeight,
+        container.getBoundingClientRect().width / container.clientWidth,
+        devicePixelRatio,
+      ),
     );
     this.renderer.setSize(container.clientWidth, container.clientHeight);
     this.renderer.info.autoReset = false;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.renderer.domElement.setAttribute(
@@ -146,10 +175,25 @@ export class ArchiveScene {
       near: 0.1,
       far: 45,
     });
-    this.light.shadow.mapSize.set(2048, 2048);
+    this.light.shadow.mapSize.set(
+      lightingLook === "warm" ? 4096 : 2048,
+      lightingLook === "warm" ? 4096 : 2048,
+    );
     this.light.shadow.normalBias = lightingLook === "refined" ? 0.018 : 0.035;
     this.light.shadow.bias = lightingLook === "refined" ? -0.00012 : -0.0003;
     this.light.shadow.radius = 4;
+    if (lightingLook === "warm") {
+      Object.assign(this.light.shadow.camera, {
+        left: -22,
+        right: 22,
+        top: 20,
+        bottom: -20,
+        far: 65,
+      });
+      this.light.shadow.normalBias = 0.008;
+      this.light.shadow.bias = -0.00008;
+      this.light.shadow.radius = 3.5;
+    }
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(200, 200),
       new THREE.MeshStandardMaterial({ color: "#d8c9b9", roughness: 0.95 }),
@@ -163,6 +207,11 @@ export class ArchiveScene {
     this.camera.fov = 6.15;
     this.camera.lookAt(this.cameraAim);
     this.composer = new EffectComposer(this.renderer);
+    if (lightingLook === "warm") {
+      const samples = Math.min(4, this.renderer.capabilities.maxSamples);
+      this.composer.renderTarget1.samples = samples;
+      this.composer.renderTarget2.samples = samples;
+    }
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     this.ao = new SSAOPass(
       this.scene,
@@ -180,22 +229,36 @@ export class ArchiveScene {
       maxblur: 0.011,
     });
     this.composer.addPass(this.bokeh);
-    this.smaa.enabled = false;
-    this.composer.addPass(this.smaa);
+    // WebGLRenderer's antialias flag only covers its default framebuffer.
+    // Smooth the actual postprocessed image before output colour conversion.
+    this.antialias = new SMAAPass();
+    this.composer.addPass(this.antialias);
     this.composer.addPass(new OutputPass());
     this.bindPointer();
   }
-  async load(assetUrl = "/assets/archive-cassette.glb") {
-    this.labelMark.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(labelMarkSvg)}`;
+  async load() {
+    this.labelMark.src =
+      site.brand.logo ??
+      `data:image/svg+xml;charset=utf-8,${encodeURIComponent(labelMarkSvg)}`;
     await this.labelMark.decode();
     const gltf = await new GLTFLoader().loadAsync(
-      assetUrl,
+      "/assets/archive-cassette.glb",
     );
     gltf.scene.updateMatrixWorld(true);
     const meshes: THREE.Mesh[] = [];
     gltf.scene.traverse((o) => {
       if (o instanceof THREE.Mesh) meshes.push(o);
     });
+    // Blender can reorder exported objects; keep the shell first for picking.
+    meshes.sort(
+      (a, b) =>
+        Number(
+          !(a.material as THREE.Material).name.startsWith("Frosted_Polymer"),
+        ) -
+        Number(
+          !(b.material as THREE.Material).name.startsWith("Frosted_Polymer"),
+        ),
+    );
     const count = LOOP_COLUMNS * LOOP_ROWS;
     for (let index = 0; index < count; index++) {
       const cell = poolCell(index);
@@ -211,7 +274,7 @@ export class ArchiveScene {
       const name = source.name.replace(/\.\d+$/, "");
       const mat = source.clone() as THREE.MeshPhysicalMaterial;
       mat.envMapIntensity = 0.6;
-      if (name === "Frosted_Polymer") {
+      if (name === "Frosted_Polymer" && !mat.userData.frosted) {
         mat.color.set("#fffdfa");
         mat.transmission = 0.9;
         mat.thickness = 0.12;
@@ -233,17 +296,38 @@ export class ArchiveScene {
             "#include <roughnessmap_fragment>\nroughnessFactor = mix(0.48, 0.035, smoothstep(0.36, 0.68, vArchiveHeight));",
           );
         };
+        if (this.lightingLook === "warm") {
+          mat.userData.acrylic = true;
+          mat.roughness = 0.065;
+        }
       }
       if (name === "Internal_Ceramic") {
         mat.color.set(this.lightingLook === "refined" ? "#c4baae" : "#c7beb6");
         mat.roughness = 0.6;
       }
       if (name === "Printed_Label") mat.color.set("#eae5dc");
-      if (name === "Ivory_Edges") {
+      if (name === "Ivory_Edges" && !mat.userData.frosted) {
         mat.color.set("#f0e7df");
         mat.roughness = 0.31;
         mat.transmission = 0.65;
         mat.thickness = 0.04;
+        if (this.lightingLook === "warm") {
+          mat.userData.acrylic = true;
+          mat.roughness = 0.12;
+          mat.transmission = 0.88;
+        }
+      }
+      if (mat.userData.frosted) {
+        // Keep Blender's baked normal/roughness maps and measured white body.
+        mat.thickness = name === "Frosted_Polymer" ? 0.12 : 0.04;
+        mat.attenuationColor.set("#f9f7f2");
+        mat.attenuationDistance = 3;
+        for (const map of [mat.normalMap, mat.roughnessMap])
+          if (map)
+            map.anisotropy = Math.min(
+              8,
+              this.renderer.capabilities.getMaxAnisotropy(),
+            );
       }
       if (name === "Optical_Diffuser") {
         mat.color.set("#e2dad4");
@@ -274,7 +358,15 @@ export class ArchiveScene {
       if (name === "Carbon_Ink") continue;
       const selectedMesh = new THREE.Mesh(geom, mat);
       selectedMesh.userData.surface = name;
-      selectedMesh.castShadow = name === "Optical_Diffuser";
+      selectedMesh.castShadow =
+        name === "Optical_Diffuser" ||
+        (this.lightingLook === "warm" &&
+          [
+            "Internal_Ceramic",
+            "Subsurface_Optics",
+            "Titanium_Fasteners",
+            "Champagne_Index",
+          ].includes(name));
       selectedMesh.receiveShadow = true;
       this.model.add(selectedMesh);
       // Only the shell, edge and fasteners remain visible within tightly packed rows.
@@ -292,7 +384,7 @@ export class ArchiveScene {
         continue;
       }
       const arrayMat = mat.clone();
-      if (name === "Frosted_Polymer") {
+      if (name === "Frosted_Polymer" && !mat.userData.frosted) {
         arrayMat.transmission = 0.78;
         if (this.lightingLook === "refined") {
           // Longer oblique paths pick up the warm body tint, while the thin
@@ -320,14 +412,22 @@ export class ArchiveScene {
         arrayMat.roughness = 0.28;
         arrayMat.clearcoat = 0.3;
         arrayMat.clearcoatRoughness = 0.25;
+        if (this.lightingLook === "warm") arrayMat.roughness = 0.18;
       }
       if (name === "Optical_Diffuser") arrayMat.color.set("#806447");
-      if (name === "Ivory_Edges") {
+      if (name === "Ivory_Edges" && !mat.userData.frosted) {
         arrayMat.transmission = 0;
         arrayMat.color.set(
           this.lightingLook === "refined" ? "#dcc9b0" : "#fff5e9",
         );
         arrayMat.roughness = 0.38;
+        if (this.lightingLook === "warm") {
+          arrayMat.roughness = 0.16;
+          arrayMat.transmission = 0.5;
+        }
+      }
+      if (mat.userData.frosted) {
+        arrayMat.transmission = name === "Frosted_Polymer" ? 0.14 : 0.04;
       }
       if (name === "Champagne_Index") {
         arrayMat.color.set("#e4d6c5");
@@ -336,7 +436,7 @@ export class ArchiveScene {
       this.appearance.register(name, mat, arrayMat);
       const inst = new THREE.InstancedMesh(geom, arrayMat, count);
       inst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-      inst.castShadow = name === "Optical_Diffuser";
+      inst.castShadow = selectedMesh.castShadow;
       inst.receiveShadow = true;
       inst.frustumCulled = false;
       this.instances.push(inst);
@@ -364,6 +464,11 @@ export class ArchiveScene {
     this.drawLabel(0);
     this.scene.add(this.model);
     this.model.position.copy(this.positions[this.selectedSlot]);
+    // Reuse the delivered shell for picking; this mesh is never rendered.
+    this.hoverAnchor = new THREE.Mesh(
+      this.instances[0].geometry,
+      this.instances[0].material,
+    );
     this.loaded = true;
   }
 
@@ -394,6 +499,14 @@ export class ArchiveScene {
       );
       mesh.userData.surface = name;
       mesh.userData.assemblyPart = object.userData.assemblyPart;
+      mesh.castShadow = ![
+        "Frosted_Polymer",
+        "Optical_Edges",
+        "Amber_Lightguide",
+        "Printed_Label",
+        "Carbon_Ink",
+      ].includes(name);
+      mesh.receiveShadow = true;
       model.add(mesh);
       meshes.push(mesh);
     });
@@ -431,11 +544,27 @@ export class ArchiveScene {
     };
   }
   setMode(mode: "hidden" | "archive" | "detail") {
+    this.pathTracer?.invalidate();
+    if (mode !== "archive") {
+      this.setHoveredCell(null);
+      this.pointerOverCanvas = false;
+    }
+    if (mode === "hidden") this.hoverLifts.clear();
     if (mode !== "archive") this.pendingPulse = null;
+    const wasLooping = this.looping;
     this.looping = mode !== "hidden";
+    if (this.looping && !wasLooping) {
+      // A long/custom catalog can start outside the reference's 5 x 32 slots.
+      // Keep its physical card still while assigning the semantic origin.
+      const canonical = fileLocation(this.selectedIndex);
+      this.coordinateOrigin = {
+        lane: canonical.lane - this.selectedCell.lane,
+        row: canonical.row - this.selectedCell.row,
+      };
+    }
     if (!this.looping) {
-      const canonical = fileLocation(fileAtSlot(this.selectedSlot));
-      this.selectedCell = { lane: canonical.lane, row: canonical.row };
+      const canonical = fileLocation(this.selectedIndex);
+      this.selectedCell = poolCell(canonical.slot);
       this.coordinateOrigin = { lane: 0, row: 0 };
       for (const old of this.outgoing) {
         this.scene.remove(old.group);
@@ -455,43 +584,79 @@ export class ArchiveScene {
   setReduced(value: boolean) {
     this.reduced = value;
   }
-  setQuality(value: RenderQuality | boolean) {
-    const quality =
-      typeof value === "boolean"
-        ? normalizeQuality(undefined, value)
-        : normalizeQuality(value);
-    const key = JSON.stringify(quality);
-    if (this.appliedQuality === key) return;
-    this.appliedQuality = key;
-    this.quality = quality;
-    if (quality.aoSamples && quality.aoSamples !== this.aoKernelSize) {
-      const old = this.ao;
-      this.ao = new SSAOPass(this.scene, this.camera, 1, 1, quality.aoSamples);
-      this.ao.kernelRadius = old.kernelRadius;
-      this.ao.minDistance = old.minDistance;
-      this.ao.maxDistance = old.maxDistance;
-      const index = this.composer.passes.indexOf(old);
-      this.composer.removePass(old);
-      this.composer.insertPass(this.ao, index);
-      old.dispose();
-      this.aoKernelSize = quality.aoSamples;
+  setQuality(high: boolean) {
+    this.highQuality = high;
+    this.ao.enabled = high;
+    this.pathTracer?.invalidate();
+    const samples =
+      high && this.lightingLook === "warm"
+        ? Math.min(4, this.renderer.capabilities.maxSamples)
+        : 0;
+    for (const target of [
+      this.composer.renderTarget1,
+      this.composer.renderTarget2,
+    ]) {
+      if (target.samples !== samples) {
+        target.samples = samples;
+        target.dispose();
+      }
     }
-    this.ao.enabled = quality.aoSamples > 0;
-    this.bokeh.enabled = quality.depthOfField > 0;
-    this.smaa.enabled = quality.antialias === "smaa";
-    this.renderer.shadowMap.enabled = quality.shadows > 0;
-    const size = Math.min(
-      quality.shadows || 1024,
-      this.renderer.capabilities.maxTextureSize,
-    );
-    if (this.light.shadow.mapSize.x !== size) {
-      this.light.shadow.map?.dispose();
-      this.light.shadow.map = null;
-      this.light.shadow.mapSize.set(size, size);
-    }
-    this.light.shadow.needsUpdate = true;
-    applyTextureQuality(this.scene, this.renderer, quality);
     this.resize();
+  }
+  setPathTracing(enabled: boolean) {
+    enabled &&= this.lightingLook === "warm";
+    if (enabled === this.traceWanted) {
+      this.onPathTracingState?.(this.traceState);
+      return;
+    }
+    this.traceWanted = enabled;
+    this.traceTicket++;
+    this.traceLoading = false;
+    if (!enabled) {
+      this.pathTracer?.dispose();
+      this.pathTracer = undefined;
+    }
+    this.setTraceState(enabled ? "preparing" : "off");
+  }
+  private setTraceState(state: ArchiveTraceState) {
+    if (state === this.traceState) return;
+    this.traceState = state;
+    this.onPathTracingState?.(state);
+  }
+  private async startPathTracing() {
+    if (
+      !this.traceWanted ||
+      this.pathTracer ||
+      this.traceLoading ||
+      this.traceState === "error"
+    )
+      return;
+    const ticket = ++this.traceTicket;
+    this.traceLoading = true;
+    try {
+      const { ArchivePathTracer } = await import("./archive-pathtracer");
+      if (ticket !== this.traceTicket || !this.traceWanted) return;
+      this.pathTracer = new ArchivePathTracer(
+        this.renderer,
+        this.scene,
+        this.camera,
+        () => this.composer.render(),
+        () => {
+          const enabled = this.ao.enabled;
+          this.ao.enabled = true;
+          this.composer.render();
+          this.ao.enabled = enabled;
+          return this.ao.normalRenderTarget.depthTexture!;
+        },
+      );
+    } catch (error) {
+      if (ticket === this.traceTicket) {
+        console.error("Archive path tracing initialization failed", error);
+        this.setTraceState("error");
+      }
+    } finally {
+      if (ticket === this.traceTicket) this.traceLoading = false;
+    }
   }
   private cellPosition(cell: ArchiveCell) {
     return new THREE.Vector3(
@@ -506,11 +671,11 @@ export class ArchiveScene {
     const shift = {
       lane:
         Math.abs(this.selectedCell.lane) > 2048
-          ? Math.round((this.selectedCell.lane - 2) / 5) * 5
+          ? Math.trunc((this.selectedCell.lane - 2) / 1024) * 1024
           : 0,
       row:
         Math.abs(this.selectedCell.row) > 2048
-          ? Math.floor((this.selectedCell.row - 12) / 8) * 8
+          ? Math.trunc((this.selectedCell.row - 12) / 1024) * 1024
           : 0,
     };
     if (!shift.lane && !shift.row) return;
@@ -534,14 +699,30 @@ export class ArchiveScene {
       this.pendingPulse.lane -= shift.lane;
       this.pendingPulse.row -= shift.row;
     }
+    if (this.hoveredCell) {
+      this.hoveredCell.lane -= shift.lane;
+      this.hoveredCell.row -= shift.row;
+    }
+    const hoverLifts = [...this.hoverLifts.values()];
+    this.hoverLifts.clear();
+    for (const hover of hoverLifts) {
+      hover.cell.lane -= shift.lane;
+      hover.cell.row -= shift.row;
+      this.hoverLifts.set(cellKey(hover.cell), hover);
+    }
   }
   select(index: number, navigation?: ArchiveNavigation) {
     this.lastInteraction = this.clock;
     const next = fileLocation(index).slot;
     const canonical = fileLocation(index);
     const cell = this.looping
-      ? selectionCell(index, this.selectedCell, navigation)
-      : { lane: canonical.lane, row: canonical.row };
+      ? selectionCell(
+          index,
+          this.selectedCell,
+          navigation,
+          this.coordinateOrigin,
+        )
+      : poolCell(canonical.slot);
     const changed = !sameCell(cell, this.selectedCell);
     if (this.looping && changed && this.loaded && this.lift.value > 0.0001) {
       const group = this.model.clone(true);
@@ -572,6 +753,7 @@ export class ArchiveScene {
       this.lift.velocity = 0;
     }
     this.selectedSlot = next;
+    this.selectedIndex = index;
     this.selectedCell = cell;
     if (changed) {
       this.rotation = 0;
@@ -606,17 +788,17 @@ export class ArchiveScene {
     c.fillRect(12, 12, 1000, 6);
     c.fillRect(12, 419, 1000, 3);
     c.font = "bold 81px MiSans";
-    c.fillText("RHINE LAB, LLC.", 22, 116);
+    c.fillText(site.brand.company.replace(".LLC.", ", LLC."), 22, 116, 740);
     c.font = "32px MiSans";
     c.fillStyle = "#878476";
-    c.fillText("INTERNAL DATABASE", 25, 174);
+    c.fillText(site.brand.database, 25, 174, 740);
     c.fillStyle = "#171713";
     c.font = "bold 130px MiSans";
-    c.fillText("NO." + String(index + 1).padStart(3, "0"), 22, 360);
+    c.fillText("NO." + String(records[index].number).padStart(3, "0"), 22, 360);
     c.fillRect(782, 32, 221, 39);
     c.fillStyle = "#eee9de";
     c.font = "24px MiSans";
-    c.fillText("R L / I S", 809, 61);
+    c.fillText(site.brand.labelCode, 809, 61, 180);
     c.fillStyle = "#171713";
     c.font = "bold 64px MiSans";
     c.fillText("INFO", 830, 143);
@@ -624,30 +806,98 @@ export class ArchiveScene {
     this.labelTexture.needsUpdate = true;
   }
   resize() {
+    this.pathTracer?.invalidate();
     const w = this.container.clientWidth,
       h = this.container.clientHeight;
-    const dimensions = resizeQuality(
-      this.renderer,
-      this.composer,
-      this.container,
-      this.quality,
+    this.renderer.setPixelRatio(
+      archivePixelRatio(
+        w,
+        h,
+        this.container.getBoundingClientRect().width / w,
+        devicePixelRatio,
+        this.highQuality,
+      ),
     );
-    this.ao.setSize(
-      Math.max(1, Math.floor(dimensions.width * this.quality.aoResolution)),
-      Math.max(1, Math.floor(dimensions.height * this.quality.aoResolution)),
-    );
-    this.container.dataset.renderQuality = JSON.stringify({
-      ...JSON.parse(this.container.dataset.renderQuality!),
-      aoSamples: this.ao.enabled ? this.aoKernelSize : 0,
-      aoWidth: this.ao.width,
-      aoHeight: this.ao.height,
-      shadows: this.renderer.shadowMap.enabled
-        ? this.light.shadow.mapSize.x
-        : 0,
-      depthOfField: this.bokeh.enabled ? this.quality.depthOfField : 0,
-    });
+    this.composer.setPixelRatio(this.renderer.getPixelRatio());
+    this.renderer.setSize(w, h);
+    this.composer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+  }
+  private setHoveredCell(cell: ArchiveCell | null) {
+    if (
+      cell === this.hoveredCell ||
+      (cell && this.hoveredCell && sameCell(cell, this.hoveredCell))
+    )
+      return;
+    this.hoveredCell = cell ? { ...cell } : null;
+    if (cell && !this.hoverLifts.has(cellKey(cell))) {
+      this.hoverLifts.set(cellKey(cell), {
+        cell: { ...cell },
+        value: 0,
+        velocity: 0,
+      });
+    }
+    this.renderer.domElement.style.cursor = cell ? "pointer" : "default";
+    this.onHover?.(cell ? fileAtCell(cell, this.coordinateOrigin) : null);
+  }
+  private pickCard(): ArchiveCell | null {
+    if (
+      !this.loaded ||
+      !this.looping ||
+      !this.targetReveal ||
+      this.targetDetail ||
+      this.reveal < 0.8 ||
+      this.detail > 0.2
+    )
+      return null;
+    this.model.updateMatrixWorld(true);
+    for (const old of this.outgoing) old.group.updateMatrixWorld(true);
+    this.raycaster.setFromCamera(this.cursor, this.camera);
+    const hit = this.raycaster.intersectObjects(
+      [this.instances[0], this.model, ...this.outgoing.map((o) => o.group)],
+      true,
+    )[0];
+    // Keep the original surface hittable as it rises away from a still pointer.
+    // Compare depth with the live hit so nearer neighboring cards still win.
+    const hover = this.hoveredCell
+      ? this.hoverLifts.get(cellKey(this.hoveredCell))
+      : undefined;
+    if (hover && this.hoverAnchor) {
+      const group = sameCell(hover.cell, this.selectedCell)
+        ? this.model
+        : this.outgoing.find((o) => sameCell(o.cell, hover.cell))?.group;
+      const instance = this.cells.findIndex((cell) =>
+        sameCell(cell, hover.cell),
+      );
+      if (group || instance >= 0) {
+        if (group) this.hoverAnchor.matrixWorld.copy(group.matrixWorld);
+        else {
+          this.instances[0].getMatrixAt(instance, this.hoverAnchor.matrixWorld);
+          this.hoverAnchor.matrixWorld.premultiply(
+            this.instances[0].matrixWorld,
+          );
+        }
+        this.hoverAnchor.matrixWorld.elements[13] -= hover.value;
+        const anchors: THREE.Intersection[] = [];
+        this.hoverAnchor.raycast(this.raycaster, anchors);
+        if (
+          anchors.some(
+            (anchor) => anchor.distance <= (hit?.distance ?? Infinity),
+          )
+        )
+          return { ...hover.cell };
+      }
+    }
+    if (!hit) return null;
+    if (hit.instanceId !== undefined) return { ...this.cells[hit.instanceId] };
+    let root = hit.object;
+    while (root.parent && root.parent !== this.scene) root = root.parent;
+    const cell =
+      root === this.model
+        ? this.selectedCell
+        : this.outgoing.find((o) => o.group === root)?.cell;
+    return cell ? { ...cell } : null;
   }
   private bindPointer() {
     const canvas = this.renderer.domElement;
@@ -667,6 +917,8 @@ export class ArchiveScene {
         (e.clientX - r.left) / r.width - 0.5,
         (e.clientY - r.top) / r.height - 0.5,
       );
+      this.cursor.set(this.pointer.x * 2, -this.pointer.y * 2);
+      this.pointerOverCanvas = e.pointerType !== "touch";
       if (this.dragging) {
         if (!this.canInspect) {
           this.dragging = false;
@@ -679,24 +931,8 @@ export class ArchiveScene {
         );
         return;
       }
-      if (this.reveal < 0.8 || this.detail > 0.2 || !this.loaded) return;
-      this.cursor.set(
-        ((e.clientX - r.left) / r.width) * 2 - 1,
-        (-(e.clientY - r.top) / r.height) * 2 + 1,
-      );
-      this.raycaster.setFromCamera(this.cursor, this.camera);
-      const hit = this.raycaster.intersectObjects(
-        [this.instances[0], this.model],
-        true,
-      )[0];
-      canvas.style.cursor = hit ? "pointer" : "default";
-      this.onHover?.(
-        hit
-          ? hit.instanceId !== undefined
-            ? fileAtCell(this.cells[hit.instanceId])
-            : fileAtSlot(this.selectedSlot)
-          : null,
-      );
+      // The render loop picks once using the latest pointer and camera pose.
+      // High-frequency pointer events must not repeat the same geometry work.
     });
     canvas.addEventListener("pointerup", (e) => {
       this.dragging = false;
@@ -712,26 +948,23 @@ export class ArchiveScene {
         ((e.clientX - r.left) / r.width) * 2 - 1,
         (-(e.clientY - r.top) / r.height) * 2 + 1,
       );
-      this.raycaster.setFromCamera(this.cursor, this.camera);
-      const hit = this.raycaster.intersectObjects(
-        [this.instances[0], this.model],
-        true,
-      )[0];
-      if (hit)
-        this.onSelect?.(
-          hit.instanceId !== undefined
-            ? fileAtCell(this.cells[hit.instanceId])
-            : fileAtSlot(this.selectedSlot),
-          hit.instanceId !== undefined
-            ? { ...this.cells[hit.instanceId] }
-            : { ...this.selectedCell },
-        );
+      const cell = this.pickCard();
+      if (cell) {
+        if (sameCell(cell, this.selectedCell) && this.onOpen) this.onOpen();
+        else this.onSelect?.(fileAtCell(cell, this.coordinateOrigin), cell);
+      }
     });
-    canvas.addEventListener("pointercancel", () => (this.dragging = false));
-    canvas.addEventListener("pointerleave", () => {
+    const clearHover = () => {
       this.pointer.set(0, 0);
-      this.onHover?.(null);
+      this.pointerOverCanvas = false;
+      this.setHoveredCell(null);
+    };
+    canvas.addEventListener("pointercancel", () => {
+      this.dragging = false;
+      clearHover();
     });
+    canvas.addEventListener("pointerleave", clearHover);
+    window.addEventListener("blur", clearHover);
   }
   update(
     time: number,
@@ -757,6 +990,22 @@ export class ArchiveScene {
       this.scanBlend *= Math.exp(-dt * 3);
     }
     if (this.looping && !cinematic) this.rebaseCoordinates();
+    if (cinematic) {
+      this.setHoveredCell(null);
+      this.hoverLifts.clear();
+    }
+    for (const [key, hover] of this.hoverLifts) {
+      const target =
+        this.hoveredCell && sameCell(hover.cell, this.hoveredCell)
+          ? HOVER_LIFT
+          : 0;
+      if (this.reduced) {
+        hover.value = target;
+        hover.velocity = 0;
+      } else damp(hover, target, target ? 18 : 14, dt);
+      if (!target && hover.value < 0.0001 && Math.abs(hover.velocity) < 0.001)
+        this.hoverLifts.delete(key);
+    }
     const chosen = this.cellPosition(this.selectedCell);
     const selectedRow = this.selectedCell.row;
     const selectedLane = this.selectedCell.lane;
@@ -800,6 +1049,7 @@ export class ArchiveScene {
     const aligningCopy = this.outgoing.some((o) => o.returnY !== null);
     const idle =
       !cinematic &&
+      !this.traceWanted &&
       !this.reduced &&
       this.targetReveal > 0 &&
       !this.targetDetail &&
@@ -855,6 +1105,7 @@ export class ArchiveScene {
       const distance = row - this.shoulder.value;
       return (
         height +
+        (this.hoverLifts.get(cellKey({ row, lane }))?.value ?? 0) +
         settlingWave(distance, 26.56) *
           columnStrength(lane, this.laneFocus.value)
       );
@@ -1007,6 +1258,16 @@ export class ArchiveScene {
       7.33,
       settle,
     );
+    const compact =
+      !cinematic && this.container.parentElement?.dataset.layout === "compact";
+    const viewSpan = compact
+      ? THREE.MathUtils.lerp(
+          span,
+          5.9 * Math.max(2.1, 0.95 / this.camera.aspect),
+          detail,
+        )
+      : THREE.MathUtils.lerp(span, 5.9, detail) *
+        Math.max(1, 16 / 9 / this.camera.aspect);
     const distance = THREE.MathUtils.lerp(
       THREE.MathUtils.lerp(28 + 7 * orbit, 140, settle),
       72,
@@ -1108,12 +1369,25 @@ export class ArchiveScene {
       const up = new THREE.Vector3()
         .crossVectors(viewDirection, right)
         .normalize();
-      const pixelScale = 1080 / THREE.MathUtils.lerp(span, 5.9, detail);
+      const width = this.container.clientWidth;
+      const height = this.container.clientHeight;
+      const pixelScale = height / viewSpan;
       const detailAim = this.model.position
         .clone()
         .add(new THREE.Vector3(0, 1.85, 0));
-      detailAim.addScaledVector(right, (960 - 550) / pixelScale);
-      detailAim.addScaledVector(up, (560 - 540) / pixelScale);
+      if (compact) {
+        // Keep the overview camera anchored to the slot. Following the live
+        // model also follows hover/idle waves and makes the whole image sway.
+        cameraAim.set(0, chosen.y + settlingWave(0, 26.56) + 0.4 + 1.85, -2.17);
+        cameraAim.addScaledVector(
+          up,
+          (height * 0.33 - height / 2) / pixelScale,
+        );
+      }
+      const targetX = width * (compact ? 0.5 : 550 / 1920);
+      const targetY = height * (compact ? 0.26 : 560 / 1080);
+      detailAim.addScaledVector(right, (width / 2 - targetX) / pixelScale);
+      detailAim.addScaledVector(up, (targetY - height / 2) / pixelScale);
       cameraAim.lerp(detailAim, detail);
     }
     const cameraPosition = cameraAim
@@ -1129,9 +1403,7 @@ export class ArchiveScene {
     this.camera.lookAt(this.cameraAim);
     this.camera.fov = THREE.MathUtils.lerp(
       this.camera.fov,
-      THREE.MathUtils.radToDeg(
-        2 * Math.atan(THREE.MathUtils.lerp(span, 5.9, detail) / (2 * distance)),
-      ),
+      THREE.MathUtils.radToDeg(2 * Math.atan(viewSpan / (2 * distance))),
       cameraBlend,
     );
     const fog = this.scene.fog as THREE.Fog;
@@ -1139,11 +1411,37 @@ export class ArchiveScene {
     // fog to the rendered camera, or entry puts the array behind the far plane
     // until the camera catches up (a brief white wash that exit never showed).
     const renderedDistance = this.camera.position.distanceTo(this.cameraAim);
-    fog.near = renderedDistance + THREE.MathUtils.lerp(5, -1, detail);
-    fog.far = renderedDistance + THREE.MathUtils.lerp(25, 12, detail);
+    fog.near =
+      renderedDistance + THREE.MathUtils.lerp(5, cinematic ? -1 : 4, detail);
+    fog.far =
+      renderedDistance + THREE.MathUtils.lerp(25, cinematic ? 12 : 24, detail);
 
+    const depth = archiveDepthRange(renderedDistance, Boolean(cinematic));
+    this.camera.near = depth.near;
+    this.camera.far = depth.far;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrixWorld();
+    // SSAOPass only copies these matrices at construction/resize. The animated
+    // lens needs matching depth reconstruction on every rendered frame.
+    const aoUniforms = this.ao.ssaoMaterial.uniforms;
+    aoUniforms.cameraNear.value = this.camera.near;
+    aoUniforms.cameraFar.value = this.camera.far;
+    aoUniforms.cameraProjectionMatrix.value.copy(this.camera.projectionMatrix);
+    aoUniforms.cameraInverseProjectionMatrix.value.copy(
+      this.camera.projectionMatrixInverse,
+    );
+    this.ao.depthRenderMaterial.uniforms.cameraNear.value = this.camera.near;
+    this.ao.depthRenderMaterial.uniforms.cameraFar.value = this.camera.far;
+    // Preserve the original world-space AO thresholds with the tighter range.
+    const depthScale = 299.9 / (this.camera.far - this.camera.near);
+    this.ao.minDistance = 0.001 * depthScale;
+    this.ao.maxDistance = 0.09 * depthScale;
+    this.antialias.enabled = !cinematic;
+    this.bokeh.enabled = Boolean(cinematic) && this.highQuality;
+    if (!cinematic)
+      this.setHoveredCell(
+        this.pointerOverCanvas && !this.dragging ? this.pickCard() : null,
+      );
     let neighborTop = -Infinity;
     const lane = selectedLane,
       row = selectedRow;
@@ -1180,12 +1478,40 @@ export class ArchiveScene {
       { value: number }
     >;
     bokehUniforms.focus.value = -focalPoint.z;
-    bokehUniforms.aperture.value =
-      (THREE.MathUtils.lerp(0.0003, 0.0008, detail) *
-        this.quality.depthOfField) /
-      100;
+    bokehUniforms.aperture.value = THREE.MathUtils.lerp(0.0003, 0.0008, detail);
     this.renderer.info.reset();
-    this.composer.render();
+    if (!cinematic && this.traceWanted && this.targetReveal > 0) {
+      if (!this.pathTracer) {
+        this.composer.render();
+        void this.startPathTracing();
+      } else {
+        // Finish the approved wave, hover lift and camera springs before taking
+        // a tracing snapshot. Only the continuous idle wave rests in this mode.
+        const moving =
+          this.dragging ||
+          this.returnY !== null ||
+          this.outgoing.length > 0 ||
+          this.pulses.length > 0 ||
+          Math.abs(this.reveal - this.targetReveal) > 0.0001 ||
+          Math.abs(this.detail - this.targetDetail) > 0.0001 ||
+          Math.abs(this.rotation - this.targetRotation) > 0.0001 ||
+          this.idleGain > 0.0001 ||
+          this.scanBlend > 0.0001 ||
+          [
+            this.lift,
+            this.rail,
+            this.shoulder,
+            this.laneFocus,
+            this.columnCamera,
+          ].some((spring) => Math.abs(spring.velocity) > 0.0001) ||
+          [...this.hoverLifts.values()].some(
+            (hover) => Math.abs(hover.velocity) > 0.0001,
+          ) ||
+          this.camera.position.distanceToSquared(cameraPosition) > 1e-8 ||
+          this.cameraAim.distanceToSquared(cameraAim) > 1e-8;
+        this.setTraceState(this.pathTracer.render(time, moving));
+      }
+    } else this.composer.render();
   }
   projectCard(x: number, y: number) {
     this.model.updateMatrixWorld(true);
@@ -1217,6 +1543,44 @@ export class ArchiveScene {
         .toArray()
         .map((v) => Math.round(v * 10000) / 10000),
       fieldOfView: this.camera.fov,
+      cameraNear: this.camera.near,
+      cameraFar: this.camera.far,
+      antialias: this.antialias.enabled ? "SMAA" : "reference",
+      shadows: {
+        method: "PCF",
+        resolution: this.light.shadow.mapSize.x,
+        exactGeometry: true,
+      },
+      surface: this.lightingLook === "warm" ? "clear-acrylic" : "reference",
+      gpuBackend: this.gpuBackend,
+      pathTracing: this.traceWanted
+        ? (this.pathTracer?.getStats() ?? { state: this.traceState })
+        : null,
+      renderSize: {
+        width: this.renderer.domElement.width,
+        height: this.renderer.domElement.height,
+        msaa: this.composer.renderTarget1.samples,
+        depthOfField: this.bokeh.enabled,
+      },
+      shellMaterials: this.model.children.flatMap((child) => {
+        const material = (child as THREE.Mesh)
+          .material as THREE.MeshPhysicalMaterial;
+        return material.userData.acrylic
+          ? [
+              {
+                name: child.userData.surface,
+                normalMap: Boolean(material.normalMap),
+                roughnessMap: Boolean(material.roughnessMap),
+                roughness: material.roughness,
+                transmission: material.transmission,
+              },
+            ]
+          : [];
+      }),
+      aoProjectionSynced:
+        this.ao.ssaoMaterial.uniforms.cameraProjectionMatrix.value.equals(
+          this.camera.projectionMatrix,
+        ),
       loaded: this.loaded,
       drawCalls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
@@ -1233,6 +1597,11 @@ export class ArchiveScene {
       selectedSlot: this.selectedSlot,
       selectedLane: Math.floor(this.selectedSlot / 32),
       selectedCell: { ...this.selectedCell },
+      hoveredCell: this.hoveredCell ? { ...this.hoveredCell } : null,
+      hoverLifts: [...this.hoverLifts.values()].map((hover) => ({
+        cell: { ...hover.cell },
+        lift: Math.round(hover.value * 1000) / 1000,
+      })),
       coordinateOrigin: { ...this.coordinateOrigin },
       poolBounds: {
         minLane: Math.min(...this.cells.map((c) => c.lane)),

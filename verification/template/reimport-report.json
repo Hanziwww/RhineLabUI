@@ -1,0 +1,20 @@
+{
+  "authoredFiles": 44,
+  "reimportPreservedAllAuthoredBytes": true,
+  "snapshotCounts": {
+    "topics": 44,
+    "associatedGenes": 3444,
+    "sourceRecords": 7376,
+    "phenotypeRecords": 6448,
+    "mechanismExpressionRecords": 928,
+    "interactions": 4073,
+    "nonPredictiveClaims": 55579,
+    "unassignedInteractions": 66,
+    "networkRelations": 112753,
+    "networkLinks": 83712,
+    "networkEdges": 29041,
+    "articles": 15963,
+    "clingen": 190,
+    "hhl": 223
+  }
+}

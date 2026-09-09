@@ -1,0 +1,7 @@
+{
+  "checks": [
+    "Markdown title, new section and body update without restarting Vite",
+    "Site branding updates from configuration",
+    "Editing a third site does not reload or change the default site"
+  ]
+}

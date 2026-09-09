@@ -1,0 +1,278 @@
+{
+  "checks": [
+    "rhine: built assets, real GPU samples, lazy bodies, reader, namespaced storage",
+    "rhine-audiology: built assets, real GPU samples, lazy bodies, reader, namespaced storage"
+  ],
+  "sites": [
+    {
+      "id": "rhine",
+      "port": 5273,
+      "archive": {
+        "topLeft": [
+          517,
+          313
+        ],
+        "topRight": [
+          899,
+          139
+        ],
+        "labelTopLeft": [
+          600,
+          350
+        ],
+        "labelBottomLeft": [
+          600,
+          408
+        ],
+        "modelPosition": [
+          0,
+          -1.9963,
+          -2.17
+        ],
+        "cameraPosition": [
+          -114.5565,
+          45.5345,
+          68.6579
+        ],
+        "fieldOfView": 3.3322196837484346,
+        "cameraNear": 79.99999999999997,
+        "cameraFar": 199.99999999999997,
+        "antialias": "SMAA",
+        "shadows": {
+          "method": "PCF",
+          "resolution": 4096,
+          "exactGeometry": true
+        },
+        "surface": "clear-acrylic",
+        "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "pathTracing": {
+          "engine": "three-gpu-pathtracer",
+          "state": "preparing",
+          "samples": 4.166666666666667,
+          "sampleLimit": 512,
+          "width": 2160,
+          "height": 1350,
+          "triangles": 2615296,
+          "expandedInstances": 1435,
+          "builds": 1,
+          "buildProgress": 1,
+          "geometry": "actual-triangles",
+          "worker": true,
+          "areaLights": 3
+        },
+        "renderSize": {
+          "width": 2160,
+          "height": 1350,
+          "msaa": 4,
+          "depthOfField": false
+        },
+        "shellMaterials": [
+          {
+            "name": "Frosted_Polymer",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.065,
+            "transmission": 0.9
+          },
+          {
+            "name": "Ivory_Edges",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.12,
+            "transmission": 0.88
+          }
+        ],
+        "aoProjectionSynced": true,
+        "loaded": true,
+        "drawCalls": 74,
+        "triangles": 9375058,
+        "archiveCount": 288,
+        "returningFiles": 0,
+        "selectionPhase": "settled",
+        "pendingPulse": null,
+        "pulses": [],
+        "referenceTime": 51.7,
+        "selectedSlot": 76,
+        "selectedLane": 2,
+        "selectedCell": {
+          "lane": 2,
+          "row": 12
+        },
+        "hoveredCell": null,
+        "hoverLifts": [],
+        "coordinateOrigin": {
+          "lane": 0,
+          "row": 0
+        },
+        "poolBounds": {
+          "minLane": -2,
+          "maxLane": 6,
+          "minRow": -3,
+          "maxRow": 28
+        },
+        "laneFocus": 2,
+        "columnCamera": 0,
+        "rotation": 0,
+        "clearance": -3.286490313229033,
+        "canInspect": false,
+        "returnPhase": "lowering",
+        "extraction": 0.4,
+        "appearance": 1,
+        "cameraDetail": 0,
+        "idleGain": 0,
+        "cameraDistance": 139.99999999999997,
+        "fogNear": 144.99999999999997,
+        "fogFar": 164.99999999999997,
+        "returningAppearance": [],
+        "rail": 0,
+        "fps": 1,
+        "mode": "archive",
+        "selected": "X-001",
+        "saved": [
+          "X-002"
+        ]
+      },
+      "requests": [
+        "http://127.0.0.1:5273/content/documents/X-001.json",
+        "http://127.0.0.1:5273/content/documents/X-001.json"
+      ]
+    },
+    {
+      "id": "rhine-audiology",
+      "port": 5274,
+      "archive": {
+        "topLeft": [
+          517,
+          313
+        ],
+        "topRight": [
+          899,
+          139
+        ],
+        "labelTopLeft": [
+          600,
+          350
+        ],
+        "labelBottomLeft": [
+          600,
+          408
+        ],
+        "modelPosition": [
+          0,
+          -1.9963,
+          -2.17
+        ],
+        "cameraPosition": [
+          -114.5565,
+          45.5345,
+          68.6579
+        ],
+        "fieldOfView": 3.3322196837484346,
+        "cameraNear": 79.99999999999997,
+        "cameraFar": 199.99999999999997,
+        "antialias": "SMAA",
+        "shadows": {
+          "method": "PCF",
+          "resolution": 4096,
+          "exactGeometry": true
+        },
+        "surface": "clear-acrylic",
+        "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "pathTracing": {
+          "engine": "three-gpu-pathtracer",
+          "state": "preparing",
+          "samples": 4.166666666666667,
+          "sampleLimit": 512,
+          "width": 2160,
+          "height": 1350,
+          "triangles": 2615296,
+          "expandedInstances": 1435,
+          "builds": 1,
+          "buildProgress": 1,
+          "geometry": "actual-triangles",
+          "worker": true,
+          "areaLights": 3
+        },
+        "renderSize": {
+          "width": 2160,
+          "height": 1350,
+          "msaa": 4,
+          "depthOfField": false
+        },
+        "shellMaterials": [
+          {
+            "name": "Frosted_Polymer",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.06500000000000003,
+            "transmission": 0.9
+          },
+          {
+            "name": "Ivory_Edges",
+            "normalMap": false,
+            "roughnessMap": false,
+            "roughness": 0.12000000000000001,
+            "transmission": 0.8799999999999999
+          }
+        ],
+        "aoProjectionSynced": true,
+        "loaded": true,
+        "drawCalls": 74,
+        "triangles": 9375058,
+        "archiveCount": 288,
+        "returningFiles": 0,
+        "selectionPhase": "settled",
+        "pendingPulse": null,
+        "pulses": [],
+        "referenceTime": 46.25,
+        "selectedSlot": 20,
+        "selectedLane": 0,
+        "selectedCell": {
+          "lane": 0,
+          "row": 20
+        },
+        "hoveredCell": null,
+        "hoverLifts": [],
+        "coordinateOrigin": {
+          "lane": 0,
+          "row": 0
+        },
+        "poolBounds": {
+          "minLane": -4,
+          "maxLane": 4,
+          "minRow": 4,
+          "maxRow": 35
+        },
+        "laneFocus": 7.737636848032907e-20,
+        "columnCamera": -10.39999999999999,
+        "rotation": 0,
+        "clearance": -3.2864903132290353,
+        "canInspect": false,
+        "returnPhase": "lowering",
+        "extraction": 0.4,
+        "appearance": 1,
+        "cameraDetail": 0,
+        "idleGain": 0,
+        "cameraDistance": 139.99999999999997,
+        "fogNear": 144.99999999999997,
+        "fogFar": 164.99999999999997,
+        "returningAppearance": [],
+        "rail": -4.96,
+        "fps": 36,
+        "mode": "archive",
+        "selected": "sensorineural-hearing-loss",
+        "saved": []
+      },
+      "requests": [
+        "http://127.0.0.1:5274/content/documents/sensorineural-hearing-loss.json",
+        "http://127.0.0.1:5274/data/topics/sensorineural-hearing-loss/summary.json",
+        "http://127.0.0.1:5274/data/manifest.json",
+        "http://127.0.0.1:5274/data/topics/sensorineural-hearing-loss/genes-1.json",
+        "http://127.0.0.1:5274/data/search.json",
+        "http://127.0.0.1:5274/content/documents/nonsyndromic-hearing-loss.json",
+        "http://127.0.0.1:5274/data/genes/HGNC_4284.json"
+      ]
+    }
+  ],
+  "errors": []
+}

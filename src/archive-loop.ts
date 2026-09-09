@@ -9,6 +9,16 @@ export const LOOP_ROWS = 32;
 export const COLUMN_SPACING = 5.2;
 export const ROW_SPACING = 0.62;
 const POOL_LANES = [0, 1, 2, 3, 4, -2, -1, 5, 6];
+export interface NavigationCatalog {
+  columnCount: number;
+  files(lane: number): number[];
+  location(index: number): ArchiveCell;
+}
+const defaultCatalog: NavigationCatalog = {
+  columnCount: archiveColumns.length,
+  files: columnFiles,
+  location: fileLocation,
+};
 
 export function wrap(value: number, count: number) {
   return ((value % count) + count) % count;
@@ -24,8 +34,14 @@ export function nearestOccurrence(
   return value + Math.floor((center - value + period / 2) / period) * period;
 }
 
-export function fileAtCell({ lane, row }: ArchiveCell) {
-  const files = columnFiles(wrap(lane, archiveColumns.length));
+export function fileAtCell(
+  { lane, row }: ArchiveCell,
+  origin: ArchiveCell = { lane: 0, row: 0 },
+  catalog = defaultCatalog,
+) {
+  lane += origin.lane;
+  row += origin.row;
+  const files = catalog.files(wrap(lane, catalog.columnCount));
   return files[wrap(row - 12, files.length)];
 }
 
@@ -33,13 +49,15 @@ export function selectionCell(
   index: number,
   current: ArchiveCell,
   navigation?: ArchiveNavigation,
+  origin: ArchiveCell = { lane: 0, row: 0 },
+  catalog = defaultCatalog,
 ): ArchiveCell {
   if (navigation && "cell" in navigation) return { ...navigation.cell };
-  const next = fileLocation(index);
+  const next = catalog.location(index);
   const row = nearestOccurrence(
     next.row,
-    current.row,
-    columnFiles(next.lane).length,
+    current.row + origin.row,
+    catalog.files(next.lane).length,
   );
   if (navigation?.axis === "row") {
     return { lane: current.lane, row: current.row + navigation.direction };
@@ -48,8 +66,12 @@ export function selectionCell(
     lane:
       navigation?.axis === "lane"
         ? current.lane + navigation.direction
-        : nearestOccurrence(next.lane, current.lane, archiveColumns.length),
-    row,
+        : nearestOccurrence(
+            next.lane,
+            current.lane + origin.lane,
+            catalog.columnCount,
+          ) - origin.lane,
+    row: row - origin.row,
   };
 }
 

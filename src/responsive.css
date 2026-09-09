@@ -1,0 +1,484 @@
+#stage {
+  --ui-meta: 14px;
+  --ui-body: 18px;
+  --ui-heading: 30px;
+  --ui-display: 48px;
+  --ui-gutter: clamp(24px, 3.1vw, 64px);
+  --archive-left: 64%;
+  --archive-width: 440px;
+  --column-left: 66%;
+  --column-width: 360px;
+  --header-top: clamp(48px, 11.1%, 120px);
+  --callout-inset: 58px;
+}
+
+/* Full-window scene bounds; the reference review retains its fixed canvas. */
+#stage[data-viewport="fluid"] .boot {
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform: translate(-50%, -50%) scale(var(--boot-scale));
+}
+#stage[data-viewport="fluid"] .brand {
+  left: var(--ui-gutter);
+  top: clamp(40px, 10.4%, 112px);
+}
+#stage[data-viewport="fluid"] .system-nav {
+  right: var(--ui-gutter);
+  top: var(--header-top);
+  height: 44px;
+}
+#stage[data-viewport="fluid"] .system-nav > button {
+  height: 44px;
+}
+#stage[data-viewport="fluid"] > .scene-atmosphere {
+  background:
+    linear-gradient(
+      180deg,
+      #ebe7e3 0%,
+      rgba(235, 231, 227, 0.82) 11%,
+      transparent 40%
+    ),
+    linear-gradient(0deg, rgba(235, 231, 227, 0.94) 0%, transparent 19%),
+    radial-gradient(
+      ellipse at 48% 48%,
+      transparent 35%,
+      rgba(235, 231, 227, 0.3) 85%
+    );
+}
+#stage[data-viewport="fluid"] .system-footer {
+  left: var(--ui-gutter);
+  right: var(--ui-gutter);
+}
+#stage[data-viewport="fluid"] .powered {
+  right: var(--ui-gutter);
+}
+#stage[data-viewport="fluid"]:is([data-mode="archive"], [data-mode="detail"])
+  .archive-callout {
+  left: var(--archive-left);
+  right: auto;
+  top: 42%;
+  width: var(--archive-width);
+}
+#stage[data-viewport="fluid"] .file-summary {
+  width: auto;
+  margin-left: var(--callout-inset);
+  margin-right: 0;
+}
+#stage[data-viewport="fluid"] .read-file {
+  margin-left: var(--callout-inset);
+  width: calc(100% - 2 * var(--callout-inset));
+  justify-content: space-between;
+  gap: 20px;
+}
+#stage[data-viewport="fluid"] .column-navigation {
+  left: var(--column-left);
+  right: auto;
+  width: var(--column-width);
+  justify-content: space-between;
+}
+#stage[data-viewport="fluid"]:is([data-mode="archive"], [data-mode="detail"])
+  .column-navigation
+  > div {
+  min-width: 0;
+  flex: 1;
+  text-align: center;
+}
+#stage[data-viewport="fluid"] .column-navigation > button {
+  flex: 0 0 46px;
+}
+#stage[data-viewport="fluid"] .archive-counter {
+  left: var(--ui-gutter);
+}
+#stage[data-viewport="fluid"] .archive-controls {
+  left: 24%;
+  width: 560px;
+}
+#stage[data-viewport="fluid"] .hover-label {
+  left: var(--ui-gutter);
+}
+
+/* Four text sizes on the overview. The original logo typography is separate. */
+#stage:is([data-mode="archive"], [data-mode="detail"])
+  :is(
+    .system-nav,
+    .key,
+    .eyebrow,
+    .tiny-label,
+    .column-navigation span,
+    .archive-hint,
+    .hover-label,
+    .system-footer,
+    .system-footer button
+  ) {
+  font-size: var(--ui-meta);
+}
+#stage:is([data-mode="archive"], [data-mode="detail"])
+  :is(
+    .file-summary,
+    .read-file,
+    .count-total,
+    .archive-counter i,
+    .column-navigation strong,
+    .powered
+  ) {
+  font-size: var(--ui-body);
+}
+#stage:is([data-mode="archive"], [data-mode="detail"])
+  :is(
+    .file-title,
+    .file-open,
+    .read-file > span,
+    .archive-navigation > button,
+    .column-navigation button,
+    .nav-glyph,
+    .settings-glyph
+  ) {
+  font-size: var(--ui-heading);
+}
+#stage:is([data-mode="archive"], [data-mode="detail"]) .archive-counter > div {
+  font-size: var(--ui-display);
+}
+#stage:is([data-mode="archive"], [data-mode="detail"]) .file-title {
+  flex-wrap: wrap;
+}
+#stage:is([data-mode="archive"], [data-mode="detail"]) .file-open {
+  margin-left: 18px;
+}
+#stage:is([data-mode="archive"], [data-mode="detail"])
+  .column-navigation
+  > div {
+  min-width: 156px;
+}
+#stage:is([data-mode="archive"], [data-mode="detail"]) .archive-hint {
+  letter-spacing: 0.3px;
+}
+
+#stage:is([data-mode="archive"], [data-mode="detail"]) .brand {
+  opacity: 0;
+}
+#stage:is([data-mode="archive"], [data-mode="detail"])
+  .brand:is(:hover, :focus-within) {
+  opacity: 1;
+}
+
+/* Reading and inspection remain reachable when the viewport changes shape. */
+#stage[data-viewport="fluid"] .back-button {
+  left: var(--ui-gutter);
+  top: var(--header-top);
+  height: 44px;
+  font-size: var(--ui-heading);
+  line-height: 1;
+}
+#stage[data-viewport="fluid"] .back-button > span,
+#stage[data-viewport="fluid"] .back-button > small {
+  font-size: var(--ui-meta);
+}
+#stage[data-viewport="fluid"][data-mode="detail"] .brand {
+  display: none;
+}
+#stage[data-viewport="fluid"] .object-caption {
+  left: var(--ui-gutter);
+  bottom: 96px;
+}
+#stage[data-viewport="fluid"] .object-caption > span {
+  font-size: var(--ui-heading);
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+#stage[data-viewport="fluid"] .object-caption > div {
+  font-size: var(--ui-meta);
+  line-height: 1.5;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+#stage[data-viewport="fluid"] .detail-content {
+  left: 60%;
+  right: var(--ui-gutter);
+  top: 26.7%;
+  bottom: 100px;
+  width: auto;
+  overflow: auto;
+  padding: 0 12px 30px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #b2a38c transparent;
+  font-size: var(--ui-body);
+  line-height: 1.75;
+}
+
+/* The reading page shares three of the overview's type sizes. Keep these
+   rules independent of mode so the exit transition retains its layout. */
+#stage[data-viewport="fluid"] .detail-content h2 {
+  font-size: var(--ui-heading);
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  margin: 24px 0 10px;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+#stage[data-viewport="fluid"]
+  :is(
+    .detail-title-cn,
+    .metadata dd,
+    .tab-panel p,
+    .research-notes li,
+    .tab-panel .log-note,
+    .detail-tabs button span
+  ) {
+  font-size: var(--ui-body);
+}
+#stage[data-viewport="fluid"]
+  :is(
+    .detail-kicker,
+    .detail-kicker span,
+    .detail-title-cn > span,
+    .metadata dt,
+    .detail-tabs button,
+    .panel-label,
+    .research-notes li > span,
+    .log-row,
+    .log-row b,
+    .detail-actions button,
+    .detail-actions button > span,
+    .export-button,
+    .detail-footnote
+  ) {
+  font-size: var(--ui-meta);
+}
+#stage[data-viewport="fluid"] .detail-title-cn {
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  line-height: 1.5;
+}
+#stage[data-viewport="fluid"] .metadata {
+  gap: 20px 28px;
+}
+#stage[data-viewport="fluid"] .metadata > div {
+  min-width: 0;
+}
+#stage[data-viewport="fluid"] .metadata dd {
+  margin-top: 6px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+#stage[data-viewport="fluid"] .detail-tabs {
+  gap: 24px;
+}
+#stage[data-viewport="fluid"] .detail-tabs button {
+  line-height: 1.5;
+  white-space: nowrap;
+}
+#stage[data-viewport="fluid"] .tab-panel {
+  height: 216px;
+}
+#stage[data-viewport="fluid"]
+  :is(.tab-panel p, .research-notes li, .tab-panel .log-note) {
+  line-height: 1.8;
+}
+#stage[data-viewport="fluid"] .research-notes li > span {
+  line-height: 2.32;
+}
+#stage[data-viewport="fluid"] .log-row {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+#stage[data-viewport="fluid"] .export-button > span {
+  font-size: var(--ui-heading);
+}
+#stage[data-viewport="fluid"] .detail-actions {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+#stage[data-viewport="fluid"] .detail-actions .solid-button {
+  flex: 1 1 240px;
+  min-height: 48px;
+  height: auto;
+  padding: 12px 16px;
+  gap: 16px;
+  line-height: 1.5;
+}
+#stage[data-viewport="fluid"] .detail-actions .export-button {
+  flex: 0 0 104px;
+}
+#stage[data-viewport="fluid"] .terminal-modal {
+  max-width: calc(100% - 2 * var(--ui-gutter));
+  max-height: calc(100% - 2 * var(--ui-gutter));
+  overflow: auto;
+}
+#stage[data-viewport="fluid"] .viewer-header,
+#stage[data-viewport="fluid"] .viewer-footer {
+  left: var(--ui-gutter);
+  right: var(--ui-gutter);
+}
+#stage[data-viewport="fluid"] .viewer-help,
+#stage[data-viewport="fluid"] .viewer-reset {
+  width: auto;
+  max-width: 32%;
+}
+
+/* Tablet and portrait layouts keep navigation below the information panel. */
+#stage[data-layout="compact"]:is([data-mode="archive"], [data-mode="detail"])
+  .archive-callout {
+  top: 44%;
+}
+#stage[data-layout="compact"] .callout-rule {
+  margin-top: 32px;
+}
+#stage[data-layout="compact"] .read-file {
+  margin-top: 30px;
+}
+#stage[data-layout="compact"] .archive-counter,
+#stage[data-layout="compact"] .column-navigation {
+  bottom: 184px;
+}
+#stage[data-layout="compact"] .column-navigation {
+  gap: 12px;
+}
+#stage[data-layout="compact"] .archive-controls {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 44px;
+  width: min(560px, calc(100% - 2 * var(--ui-gutter)));
+  height: 130px;
+}
+#stage[data-layout="compact"] .archive-navigation {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 66px;
+  gap: 20px;
+}
+#stage[data-layout="compact"] .archive-hint {
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.8;
+}
+#stage[data-layout="compact"] .hover-label {
+  bottom: 296px;
+}
+#stage[data-layout="compact"] .system-footer {
+  bottom: 20px;
+  justify-content: space-between;
+  gap: 12px;
+}
+#stage[data-layout="compact"] .system-footer > span:nth-child(2) {
+  margin-left: 0;
+}
+#stage[data-layout="compact"] .session-status {
+  position: absolute;
+  bottom: 26px;
+}
+#stage[data-layout="compact"] .detail-content {
+  left: var(--ui-gutter);
+  top: 45%;
+  bottom: 135px;
+}
+#stage[data-layout="compact"] .object-caption {
+  bottom: 52px;
+}
+#stage[data-layout="compact"] .viewer-heading {
+  margin-left: 30px;
+}
+#stage[data-layout="compact"] .viewer-parts {
+  top: auto;
+  bottom: 190px;
+  right: var(--ui-gutter);
+  max-height: 35%;
+  overflow: auto;
+}
+#stage[data-layout="compact"] .viewer-footer {
+  flex-wrap: wrap;
+  gap: 20px;
+  bottom: 65px;
+}
+#stage[data-layout="compact"] .viewer-help {
+  order: 1;
+  max-width: none;
+  width: 100%;
+  justify-content: center;
+}
+
+#stage[data-narrow="true"] .brand {
+  top: 28px;
+}
+#stage[data-narrow="true"] {
+  --callout-inset: 0px;
+}
+#stage[data-narrow="true"] .system-nav {
+  top: 166px;
+  left: var(--ui-gutter);
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+#stage[data-viewport="fluid"][data-narrow="true"][data-mode="detail"] {
+  --header-top: 32px;
+}
+#stage[data-viewport="fluid"][data-narrow="true"][data-mode="detail"]
+  .system-nav {
+  left: auto;
+  top: var(--header-top);
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+#stage[data-narrow="true"][data-mode="detail"] .back-button {
+  gap: 10px;
+}
+#stage[data-narrow="true"][data-mode="detail"] .back-button small,
+#stage[data-narrow="true"][data-mode="detail"] .system-nav .key {
+  display: none;
+}
+#stage[data-narrow="true"][data-mode="detail"] [data-action="search"] {
+  font-size: 0;
+  gap: 0;
+}
+#stage[data-narrow="true"] .eyebrow {
+  letter-spacing: 0.4px;
+}
+#stage[data-narrow="true"] .eyebrow span {
+  margin-left: 8px;
+}
+#stage[data-narrow="true"] .file-open {
+  display: none;
+}
+#stage[data-narrow="true"] .file-summary,
+#stage[data-narrow="true"] .read-file {
+  margin-left: 0;
+}
+#stage[data-narrow="true"] .column-navigation > div {
+  min-width: 126px;
+}
+#stage[data-narrow="true"] .terminal-modal {
+  padding: 24px;
+}
+#stage[data-narrow="true"] .terminal-modal h2 {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+#stage[data-narrow="true"] .viewer-header {
+  flex-wrap: wrap;
+  gap: 20px;
+}
+#stage[data-narrow="true"] .viewer-heading {
+  order: 1;
+  width: 100%;
+  margin-left: 0;
+}
+#stage[data-narrow="true"] .viewer-footer {
+  justify-content: center;
+}
+#stage[data-narrow="true"] .viewer-reset {
+  max-width: none;
+}
+#stage[data-narrow="true"] .viewer-actions {
+  width: 100%;
+}
+#stage[data-narrow="true"] .viewer-actions button {
+  min-width: 0;
+  flex: 1;
+  padding: 17px 9px;
+}

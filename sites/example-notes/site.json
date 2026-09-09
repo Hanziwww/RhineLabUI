@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/site.schema.json",
+  "id": "example-notes",
+  "locale": "en",
+  "title": "EXAMPLE-NOTES · ARCHIVE",
+  "description": "An independent archive built with the Rhine engine.",
+  "port": 5175,
+  "brand": {
+    "name": "EXAMPLE NOTES",
+    "subtitle": "PERSONAL KNOWLEDGE ARCHIVE",
+    "system": "ANALYSIS",
+    "systemAccent": "OS",
+    "company": "EXAMPLE-NOTES",
+    "database": "INTERNAL DATABASE",
+    "operator": "READER",
+    "markText": "EXAMPLE-NOTES",
+    "labelCode": "KB / IS",
+    "exportPrefix": "EXAMPLE-NOTES"
+  },
+  "columns": [
+    {
+      "id": "notes",
+      "title": "Notes"
+    }
+  ],
+  "filterOrder": [
+    "notes"
+  ],
+  "defaultDocument": "welcome",
+  "numberPrefix": "DOC-",
+  "labels": {},
+  "theme": {
+    "lighting": "warm",
+    "background": "#e8e5e1",
+    "ink": "#080a08",
+    "accent": "#939078"
+  },
+  "features": {
+    "expandedReader": true,
+    "knowledgeBase": false,
+    "pathTracing": true
+  },
+  "exportNotice": "Add your content attribution and license here."
+}

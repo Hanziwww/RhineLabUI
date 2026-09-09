@@ -1,0 +1,60 @@
+{
+  "Date": "2026-09-08",
+  "Archive": "frosted-shadow-experiment-2026-09-08.zip",
+  "Status": "Superseded by clear acrylic and triangle GPU path tracing",
+  "Verification": "Every ZIP entry size and SHA256 matched its original before removal",
+  "OriginalBytes": 10750288.0,
+  "ArchiveBytes": 7425022,
+  "Files": [
+    {
+      "Path": "art/make_frosted.py",
+      "Bytes": 6911,
+      "SHA256": "8B353154785F52FEB16CBE58A07B0B89294DAACADC8EB4522D55F13B889C2960"
+    },
+    {
+      "Path": "art/rhine-frosted.blend",
+      "Bytes": 5110150,
+      "SHA256": "5DEE6972C6862E466C679F254503FFDA76C7212682DD1D22EFF2ECD215953194"
+    },
+    {
+      "Path": "public/assets/archive-cassette-frosted.glb",
+      "Bytes": 3520056,
+      "SHA256": "051C3662E55B99B267274FE237311180E969D45CFA501124F4F0768ED1C2FA4A"
+    },
+    {
+      "Path": "public/assets/frosted/normal.png",
+      "Bytes": 1306582,
+      "SHA256": "88A920D9A9374A853ACF175CA78AE592144959A431C7477339942E297708C631"
+    },
+    {
+      "Path": "public/assets/frosted/roughness.png",
+      "Bytes": 783983,
+      "SHA256": "FB91B5BBE2C4E8E9CFF9788FCD7B4B337FE5E02EDA74EF9C05D257D5C9B905D6"
+    },
+    {
+      "Path": "src/ray-shadows.ts",
+      "Bytes": 9118,
+      "SHA256": "D538B0575FED1F9702DCFD1A1EC09D21977F5B47C40C08CB9C22C4F198562043"
+    },
+    {
+      "Path": "src/shadow-bvh.ts",
+      "Bytes": 4196,
+      "SHA256": "059A26A81AE99BD4CDEC7691A6CD37E0DBB9115859EB91DA467E53A639E1AF70"
+    },
+    {
+      "Path": "scripts/check-shadows.mjs",
+      "Bytes": 6507,
+      "SHA256": "246712EC8F02B0E38D06CEF20EA37E2EA101F69A4CAFD360449906944FBDEC18"
+    },
+    {
+      "Path": "verification/shadow-check.html",
+      "Bytes": 332,
+      "SHA256": "276D0DED1ED0A9BEF6EAD1C06E87AD12BFD383D75775B56C0DE46E53BED3424A"
+    },
+    {
+      "Path": "verification/shadow-check.ts",
+      "Bytes": 2453,
+      "SHA256": "153932E088D20419169595134C8FCCB0104B571F493101E6C5CF299B3AC8FDA7"
+    }
+  ]
+}

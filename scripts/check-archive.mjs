@@ -30,7 +30,16 @@ for (let lane = 0; lane < archiveColumns.length; lane++) {
     slots.add(location.slot);
     const record = records[index];
     assert.ok(record.abstract.length > 70);
-    assert.equal(record.findings.length, 3);
+    const body = JSON.parse(
+      await readFile(
+        new URL(
+          `../sites/rhine/generated/documents/${record.id}.json`,
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    assert.equal(body.legacy.findings.length, 3);
     assert.ok(new URL(record.source).protocol === "https:");
   }
 }

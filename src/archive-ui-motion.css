@@ -1,0 +1,76 @@
+/* The UI keeps its responsive layout while both layers pass through a handoff. */
+#stage:focus {
+  outline: none;
+}
+#stage[data-ui-motion]:not([data-mode="boot"]) .archive-ui {
+  transition: none;
+}
+#stage[data-ui-motion]:not([data-mode="boot"]) .column-navigation {
+  display: flex;
+}
+#stage[data-ui-motion]:not([data-mode="boot"])
+  :is(.eyebrow, .file-summary, .read-file) {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+#stage[data-ui-motion]:not([data-mode="boot"]) .callout-rule {
+  transform: scaleX(1);
+  transition: none;
+}
+#stage[data-ui-motion]:not([data-mode="boot"]) .callout-rule i {
+  opacity: 1;
+}
+#stage[data-ui-motion]:not([data-mode="boot"]) .archive-callout {
+  transition: opacity 0.25s ease;
+}
+#stage[data-ui-motion] .detail-content {
+  opacity: 1;
+  transform: none;
+}
+#stage[data-ui-motion] .object-caption {
+  animation: none;
+}
+[data-detail-reveal="rule"] {
+  transform-origin: left center;
+}
+#stage[data-ui-motion]:not([data-mode="boot"]) .scene-atmosphere {
+  transition: none;
+}
+.reading-atmosphere {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 40%,
+    rgba(232, 229, 225, 0.2) 59%,
+    rgba(232, 229, 225, 0.92) 68%,
+    #e8e5e1 100%
+  );
+}
+#stage[data-layout="compact"] .reading-atmosphere {
+  background: linear-gradient(
+    180deg,
+    transparent 30%,
+    #e8e5e1e6 48%,
+    #e8e5e1 100%
+  );
+}
+@media (hover: hover) and (pointer: fine) {
+  #stage[data-ui-motion]:not([data-mode="boot"]) .archive-controls {
+    opacity: 0;
+  }
+  #stage[data-ui-motion]:not([data-mode="boot"])
+    .archive-controls:is(:hover, :has(:focus-visible)) {
+    opacity: 1;
+  }
+  #stage[data-ui-motion]:not([data-mode="boot"]) .archive-callout {
+    opacity: var(--callout-opacity, 1);
+  }
+  #stage[data-ui-motion]:not([data-mode="boot"])
+    .archive-callout:has(:focus-visible) {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SiteConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "locale",
+    "title",
+    "description",
+    "port",
+    "brand",
+    "columns",
+    "defaultDocument",
+    "numberPrefix",
+    "labels",
+    "theme",
+    "features",
+    "exportNotice"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "locale": { "enum": ["en", "zh-CN"] },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "port": { "type": "integer", "minimum": 1024, "maximum": 65535 },
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "subtitle",
+        "system",
+        "systemAccent",
+        "company",
+        "database",
+        "operator",
+        "markText",
+        "labelCode",
+        "exportPrefix"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "system": { "type": "string" },
+        "systemAccent": { "type": "string" },
+        "company": { "type": "string" },
+        "database": { "type": "string" },
+        "operator": { "type": "string" },
+        "markText": { "type": "string" },
+        "labelCode": { "type": "string" },
+        "exportPrefix": { "type": "string", "pattern": "^[A-Za-z0-9-]+$" },
+        "logo": { "type": "string" }
+      }
+    },
+    "columns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "title": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "filterOrder": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "defaultDocument": { "type": "string" },
+    "numberPrefix": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-]*$",
+      "maxLength": 12
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lighting", "background", "ink", "accent"],
+      "properties": {
+        "lighting": { "enum": ["warm", "baseline"] },
+        "background": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "ink": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expandedReader", "knowledgeBase", "pathTracing"],
+      "properties": {
+        "expandedReader": { "type": "boolean" },
+        "knowledgeBase": { "type": "boolean" },
+        "pathTracing": { "type": "boolean" }
+      }
+    },
+    "exportNotice": { "type": "string" },
+    "attribution": {
+      "type": "object",
+      "required": ["text", "url", "license"],
+      "properties": {
+        "text": { "type": "string" },
+        "url": { "type": "string" },
+        "license": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,496 @@
+/* Content typography extends the original four UI sizes; scene styles stay intact. */
+#stage {
+  color: var(--site-ink, #080a08);
+}
+#stage button:focus-visible,
+#stage input:focus-visible,
+#stage select:focus-visible {
+  outline-color: var(--site-accent, #a67d48);
+}
+#stage .detail-content:not([data-content-layout="legacy"]) #tab-panel {
+  height: auto;
+  min-height: 216px;
+  overflow: visible;
+}
+#stage .detail-content:not([data-content-layout="legacy"]) .detail-tabs {
+  flex-wrap: wrap;
+}
+.content-attribution {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 24px;
+  color: #767263;
+}
+.content-attribution a {
+  text-decoration: underline;
+}
+.reader-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+  margin: 0 0 20px;
+  font-size: 14px;
+}
+.reader-toolbar button {
+  border-bottom: 1px solid #929083;
+  padding: 8px 0;
+}
+.reader-status {
+  padding: 36px 0;
+  color: #77756b;
+  font-size: 18px;
+}
+.reader-status button {
+  display: block;
+  margin-top: 16px;
+  color: #10120e;
+  text-decoration: underline;
+}
+#reader-toc {
+  display: none;
+}
+.markdown-body {
+  font-size: 18px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  font-size: 22px;
+  line-height: 1.35;
+  margin: 1.8em 0 0.8em;
+  font-weight: 650;
+}
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  font-size: 18px;
+}
+.markdown-body p {
+  margin: 0 0 1.2em;
+}
+.markdown-body a,
+.related-archives a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.6em;
+}
+.markdown-body blockquote {
+  border-left: 2px solid #a39b87;
+  padding-left: 20px;
+  margin: 24px 0;
+  color: #666253;
+}
+.markdown-body img {
+  display: block;
+  max-width: 100%;
+  max-height: 520px;
+  height: auto;
+  object-fit: contain;
+  margin: 24px 0;
+}
+.markdown-body pre {
+  overflow: auto;
+  max-width: 100%;
+  background: #d5d0c54d;
+  padding: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre;
+}
+.markdown-body code {
+  font-family: Consolas, monospace;
+  font-size: 0.88em;
+}
+.markdown-body table {
+  display: block;
+  max-width: 100%;
+  overflow: auto;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.markdown-body th,
+.markdown-body td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #aea898;
+  white-space: normal;
+  min-width: 120px;
+}
+.markdown-body input[type="checkbox"] {
+  accent-color: #85836b;
+}
+.markdown-body .katex-display {
+  overflow: auto;
+  max-width: 100%;
+  padding: 8px 0;
+}
+.markdown-body .footnotes {
+  border-top: 1px solid #b4b0a6;
+  font-size: 14px;
+  margin-top: 32px;
+}
+.related-archives {
+  margin-top: 32px;
+  font-size: 14px;
+}
+.related-archives a {
+  display: block;
+  margin: 10px 0;
+}
+.reader-expanded .detail-content {
+  left: var(--ui-gutter, 60px) !important;
+  right: var(--ui-gutter, 60px) !important;
+  top: 125px !important;
+  bottom: 52px !important;
+  width: auto !important;
+  max-width: none !important;
+  height: auto !important;
+  background: rgba(234, 230, 222, 0.98);
+  padding: 40px 48px;
+  box-sizing: border-box;
+  box-shadow: 0 16px 65px #4841311a;
+  z-index: 25;
+}
+.reader-expanded .detail-heading,
+.reader-expanded .detail-rule,
+.reader-expanded .metadata,
+.reader-expanded .reader-toolbar,
+.reader-expanded .detail-tabs,
+.reader-expanded .detail-actions,
+.reader-expanded .detail-footnote {
+  max-width: 1260px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.reader-expanded .reader-grid {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 920px);
+  gap: 50px;
+  justify-content: center;
+  align-items: start;
+}
+.reader-expanded #reader-toc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  font-size: 14px;
+  color: #747165;
+  padding: 20px 0;
+}
+.reader-expanded #reader-toc button {
+  text-align: left;
+  line-height: 1.5;
+  color: #393a32;
+}
+.reader-expanded #tab-panel {
+  min-width: 0;
+  max-width: 920px;
+}
+.reader-expanded .object-caption {
+  opacity: 0;
+  pointer-events: none;
+}
+#stage.reader-expanded .detail-content {
+  top: calc(var(--header-top, 120px) + 64px) !important;
+}
+#stage.reader-expanded .powered,
+#stage.reader-expanded .system-footer {
+  visibility: hidden;
+}
+#stage.reader-expanded .three-scene {
+  pointer-events: none;
+}
+.topic-statistics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  border-bottom: 1px solid #aaa593;
+  padding: 0 0 24px;
+  margin-bottom: 24px;
+}
+.topic-statistics strong {
+  display: block;
+  font-size: 30px;
+  font-weight: 650;
+}
+.topic-statistics span {
+  font-size: 14px;
+  color: #757064;
+  line-height: 1.4;
+  display: block;
+  margin-top: 8px;
+}
+.knowledge-reader {
+  font-size: 14px;
+  line-height: 1.6;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.knowledge-reader h3 {
+  font-size: 22px;
+  line-height: 1.4;
+  margin: 18px 0;
+}
+.knowledge-reader h3 small {
+  font-size: 14px;
+  display: block;
+  color: #77756b;
+  font-weight: 400;
+}
+.knowledge-reader p {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.kb-scope {
+  color: #736f62;
+}
+.kb-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  font-size: 14px;
+}
+.kb-pagination span {
+  text-align: center;
+  color: #797468;
+}
+.kb-pagination button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.kb-gene-list button {
+  width: 100%;
+  display: flex;
+  text-align: left;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid #9c978744;
+  transition: background 0.2s;
+}
+.kb-gene-list button:hover {
+  background: #d1c9b94a;
+}
+.kb-gene-list strong {
+  font-size: 18px;
+}
+.kb-gene-list small {
+  display: block;
+  font-size: 14px;
+  color: #767163;
+}
+.kb-gene-list button > span:last-child {
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 14px;
+}
+.kb-record {
+  padding: 24px 0;
+  border-bottom: 1px solid #a69f8d;
+}
+.kb-record-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.kb-record-title strong {
+  font-size: 18px;
+}
+.evidence-tag {
+  font-size: 14px;
+  padding: 4px 8px;
+  background: #c4c6b544;
+}
+.evidence-tag.mechanism {
+  background: #c4ad8344;
+}
+.kb-predicate {
+  font-family: Consolas, monospace;
+  background: #ada69722;
+  padding: 8px 12px;
+}
+.kb-status {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #7d6240;
+  margin: 14px 0;
+}
+.knowledge-reader details {
+  margin: 16px 0;
+}
+.knowledge-reader summary {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.kb-fields {
+  display: block !important;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.kb-fields > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 28%) minmax(0, 1fr);
+  gap: 14px;
+  border-bottom: 1px solid #a6a08f22;
+  padding: 8px 0;
+}
+.kb-fields dt {
+  font-size: 14px;
+  color: #777164;
+}
+.kb-fields dd {
+  font-size: 14px;
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.kb-references button {
+  font-size: 14px;
+  text-decoration: underline;
+  margin: 4px 12px 4px 0;
+}
+.kb-citation {
+  margin: 12px 0;
+}
+.kb-citation a {
+  text-decoration: underline;
+}
+.kb-citation span {
+  display: block;
+  color: #7c776b;
+}
+.kb-sections {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.kb-sections button {
+  padding: 8px 10px;
+  border: 1px solid #a29a8644;
+}
+.kb-sections [aria-pressed="true"] {
+  background: #292c24;
+  color: #ece7dc;
+}
+.kb-global-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px 0;
+  font-size: 14px;
+  color: #575849;
+}
+.kb-global-links span {
+  color: #827b6c;
+}
+.kb-back {
+  font-size: 14px;
+  border-bottom: 1px solid #8c8674;
+  padding: 8px 0;
+}
+.search-facets {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+.search-facets select {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #a7a193;
+  font: inherit;
+  color: inherit;
+  padding: 8px;
+  max-width: 230px;
+}
+.search-pages {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  font-size: 14px;
+}
+.search-pages button:disabled {
+  opacity: 0.25;
+}
+#stage[data-site="knowledge"] .brand h1 {
+  font-size: clamp(32px, 3.9vw, 56px);
+  white-space: nowrap;
+}
+#stage[data-site="knowledge"] .brand > div {
+  font-size: 20px;
+}
+#stage[data-site="knowledge"] .brand p {
+  font-size: 40px;
+}
+#stage[data-site="knowledge"] .detail-title-cn {
+  font-size: 18px;
+}
+#stage[data-site="knowledge"] .detail-title-cn > span {
+  display: none;
+}
+#stage[data-site="knowledge"] .detail-heading h2 {
+  font-size: 30px;
+  overflow-wrap: anywhere;
+}
+#stage[data-site="knowledge"] .column-navigation strong {
+  font-size: 18px;
+}
+#stage[data-site="knowledge"] .detail-tabs button {
+  font-size: 14px;
+  gap: 8px;
+}
+#stage[data-site="knowledge"] .detail-tabs button span {
+  font-size: 14px;
+}
+#stage[data-narrow="true"] .reader-expanded .detail-content {
+  padding: 22px;
+}
+#stage[data-narrow="true"].reader-expanded .detail-content {
+  left: 16px !important;
+  right: 16px !important;
+  top: 92px !important;
+  bottom: 16px !important;
+  padding: 20px;
+}
+#stage[data-narrow="true"].reader-expanded .reader-grid {
+  display: block;
+}
+#stage[data-narrow="true"].reader-expanded #reader-toc {
+  position: static;
+  border-bottom: 1px solid #aaa593;
+}
+#stage[data-narrow="true"] .topic-statistics {
+  gap: 8px;
+}
+#stage[data-narrow="true"] .kb-gene-list button {
+  flex-wrap: wrap;
+}
+#stage[data-narrow="true"] .kb-gene-list button > span:last-child {
+  text-align: left;
+}
+#stage[data-narrow="true"] .search-facets {
+  flex-wrap: wrap;
+}
+#stage[data-narrow="true"] .kb-pagination {
+  flex-wrap: wrap;
+}
+#stage[data-narrow="true"] .kb-fields > div {
+  display: block;
+}

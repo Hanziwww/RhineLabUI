@@ -1,0 +1,64 @@
+{
+  "$schema": "../../schemas/site.schema.json",
+  "id": "rhine",
+  "locale": "zh-CN",
+  "title": "RHINE LAB · ANALYSIS OS",
+  "description": "Rhine Lab — Synthesize Information Analysis OS. 交互式三维研究档案终端。",
+  "port": 5173,
+  "brand": {
+    "name": "RHINE LAB",
+    "subtitle": "SYNTHESIZE INFORMATION",
+    "system": "ANALYSIS",
+    "systemAccent": "OS",
+    "company": "RHINE LAB.LLC.",
+    "database": "INTERNAL DATABASE",
+    "operator": "JOYCE MOORE",
+    "markText": "RHINE·LAB",
+    "labelCode": "R L / I S",
+    "exportPrefix": "RHINE-LAB"
+  },
+  "columns": [
+    {
+      "id": "engineering",
+      "title": "工程研究"
+    },
+    {
+      "id": "life-sciences",
+      "title": "生命科学"
+    },
+    {
+      "id": "institution",
+      "title": "机构档案"
+    },
+    {
+      "id": "energy",
+      "title": "能量研究"
+    },
+    {
+      "id": "special",
+      "title": "特别项目"
+    }
+  ],
+  "filterOrder": [
+    "institution",
+    "engineering",
+    "life-sciences",
+    "energy",
+    "special"
+  ],
+  "defaultDocument": "X-001",
+  "numberPrefix": "X-",
+  "labels": {},
+  "theme": {
+    "lighting": "warm",
+    "background": "#e8e5e1",
+    "ink": "#080a08",
+    "accent": "#a67d48"
+  },
+  "features": {
+    "expandedReader": false,
+    "knowledgeBase": false,
+    "pathTracing": true
+  },
+  "exportNotice": "本文为基于公开设定的档案式改写，非游戏原文。"
+}

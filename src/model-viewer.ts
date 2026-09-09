@@ -1,14 +1,11 @@
+import { site, english, escapeHtml as h } from "./site";
+import { localizeUi, message } from "./ui-language";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createArchiveLighting } from "./archive-lighting";
 import { damp } from "./motion";
-import { ViewerCameraMotion } from "./viewer-camera";
-import { normalizeQuality, type RenderQuality } from "./render-quality";
-import {
-  applyTextureQuality,
-  createViewerPipeline,
-  resizeQuality,
-} from "./quality-renderer";
+import { archivePixelRatio, graphicsBackend } from "./archive-rendering";
+import type { ViewerPathTracer } from "./viewer-pathtracer";
 
 const PARTS = [
   { id: "fasteners", label: "紧固件", en: "FASTENERS", depth: 2.75 },
@@ -29,13 +26,9 @@ export class ModelViewer {
   readonly root: HTMLElement;
   private canvasHost: HTMLElement;
   private renderer: THREE.WebGLRenderer;
-  private pipeline: ReturnType<typeof createViewerPipeline>;
-  private quality = normalizeQuality(undefined);
-  private appliedQuality = "";
+  private gpuBackend: string;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(34, 16 / 9, 0.3, 120);
-  private controlCamera = this.camera.clone();
-  private cameraMotion = new ViewerCameraMotion(this.camera);
   private controls: OrbitControls;
   private source?: ModelSource;
   private groups = new Map<string, THREE.Group>();
@@ -54,15 +47,14 @@ export class ModelViewer {
   private initialCamera = new THREE.Vector3(7.2, 3.8, 12);
   private onClose: () => void;
   private provider?: () => Promise<ModelSource>;
+  private pathTracer?: ViewerPathTracer;
+  private traceWanted = true;
+  private traceLoading = false;
+  private traceTicket = 0;
+  private traceStatus = "";
   isOpen = false;
 
-  constructor(
-    parent: HTMLElement,
-    onClose: () => void,
-    private onSound: (
-      sound: "explode" | "assemble" | "tick",
-    ) => void = () => {},
-  ) {
+  constructor(parent: HTMLElement, onClose: () => void) {
     this.onClose = onClose;
     this.root = document.createElement("section");
     this.root.className = "model-viewer";
@@ -75,49 +67,61 @@ export class ModelViewer {
       <div class="scene-atmosphere viewer-atmosphere" aria-hidden="true"></div>
       <header class="viewer-header">
         <button class="viewer-back" data-viewer="close">← <span>返回档案</span><kbd>ESC</kbd></button>
-        <div class="viewer-heading"><span>RHINE LAB / OBJECT STUDY</span><h2 id="viewer-title">档案模型</h2><p id="viewer-file"></p></div>
+        <div class="viewer-heading"><span>${h(site.brand.name)} / OBJECT STUDY</span><h2 id="viewer-title">档案模型</h2><p id="viewer-file"></p></div>
         <span class="viewer-index">360<span>°</span></span>
       </header>
-      <aside class="viewer-parts" aria-label="模型装配结构"><div>ASSEMBLY / 装配结构</div>${PARTS.map((p, i) => `<p><span>${String(i + 1).padStart(2, "0")}</span><strong>${p.label}</strong><small>${p.en}</small></p>`).join("")}</aside>
+      <aside class="viewer-parts" aria-label="模型装配结构"><div>ASSEMBLY / 装配结构</div>${PARTS.map((p, i) => `<p><span>${String(i + 1).padStart(2, "0")}</span><strong>${h(english ? p.en : p.label)}</strong><small>${p.en}</small></p>`).join("")}</aside>
       <div class="viewer-loading" role="status"><span>正在载入模型…</span><button data-viewer="retry" hidden>重新载入 ↗</button></div>
       <footer class="viewer-footer">
         <div class="viewer-help"><span>拖动旋转</span><span>↑ ↓ ← → 平移</span><span>滚轮缩放</span></div>
         <div class="viewer-actions"><button data-viewer="explode" aria-pressed="false"><span>＋</span> 拆解档案</button><button data-viewer="assemble" aria-pressed="true"><span>−</span> 一键重组</button></div>
         <button class="viewer-reset" data-viewer="reset">复位视角 <span>↗</span></button>
       </footer>
-      <div class="viewer-state" aria-live="polite">已组装</div>`;
+      <div class="viewer-state" aria-live="polite"><span class="viewer-assembly-state">已组装</span></div>`;
+    localizeUi(this.root);
     parent.appendChild(this.root);
     this.canvasHost = this.root.querySelector(".viewer-canvas")!;
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       powerPreference: "high-performance",
     });
+    this.gpuBackend = graphicsBackend(this.renderer.getContext());
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.renderer.domElement.tabIndex = 0;
     this.renderer.domElement.setAttribute(
       "aria-label",
-      "档案三维模型：拖动旋转，方向键平移，滚轮或加减键缩放，Home 复位",
+      message(
+        "档案三维模型：拖动旋转，方向键平移，滚轮或加减键缩放，Home 复位",
+      ),
     );
     this.canvasHost.appendChild(this.renderer.domElement);
     this.scene.background = new THREE.Color("#eae5e1");
     this.scene.fog = new THREE.Fog("#eae5e1", 13.5, 26.5);
     // Render-target textures belong to their WebGL context. Recreate the main
     // scene's light room here so this renderer receives its actual illumination.
-    createArchiveLighting(this.renderer, this.scene);
+    const key = createArchiveLighting(this.renderer, this.scene, "warm");
+    // The exploded viewer uses the exact part geometry for self-shadowing:
+    // rings and the open frame must not cast the archive's solid insert bounds.
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    key.castShadow = true;
+    key.shadow.mapSize.set(4096, 4096);
+    Object.assign(key.shadow.camera, {
+      left: -8,
+      right: 8,
+      top: 8,
+      bottom: -8,
+      near: 0.1,
+      far: 36,
+    });
+    key.shadow.normalBias = 0.015;
+    key.shadow.bias = -0.0001;
+    key.shadow.radius = 3;
     this.camera.position.copy(this.initialCamera);
-    this.controlCamera.copy(this.camera);
-    this.controls = new OrbitControls(
-      this.controlCamera,
-      this.renderer.domElement,
-    );
-    this.controls.enableDamping = false;
-    this.pipeline = createViewerPipeline(
-      this.renderer,
-      this.scene,
-      this.camera,
-    );
-    this.pipeline.smaa.enabled = false;
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.085;
     this.controls.rotateSpeed = 0.65;
     this.controls.zoomSpeed = 0.7;
     this.controls.panSpeed = 0.7;
@@ -127,8 +131,9 @@ export class ModelViewer {
     this.controls.screenSpacePanning = true;
     this.controls.enabled = false;
     this.controls.update();
-    this.cameraMotion.snap(this.controlCamera, this.controls.target);
-    this.controls.addEventListener("start", () => this.interruptReset());
+    this.controls.addEventListener("change", () =>
+      this.pathTracer?.invalidateCamera(),
+    );
     this.root.addEventListener("click", (event) => {
       if (this.closing) return;
       const action = (event.target as HTMLElement).closest<HTMLElement>(
@@ -137,18 +142,9 @@ export class ModelViewer {
       if (action === "close") this.close();
       if (action === "retry") void this.load();
       if (this.loading || !this.source) return;
-      if (action === "explode" && this.targetSpread !== 1) {
-        this.setExploded(true);
-        this.onSound("explode");
-      }
-      if (action === "assemble" && this.targetSpread !== 0) {
-        this.setExploded(false);
-        this.onSound("assemble");
-      }
-      if (action === "reset") {
-        this.resetView();
-        this.onSound("tick");
-      }
+      if (action === "explode") this.setExploded(true);
+      if (action === "assemble") this.setExploded(false);
+      if (action === "reset") this.resetView();
     });
     this.root.addEventListener("keydown", (event) => this.keydown(event));
   }
@@ -162,6 +158,7 @@ export class ModelViewer {
     if (this.isOpen) return;
     this.isOpen = true;
     this.closing = false;
+    this.traceWanted = true;
     this.reduced = reduced;
     this.provider = provider;
     this.opener = document.activeElement as HTMLElement | null;
@@ -181,7 +178,7 @@ export class ModelViewer {
     this.targetSpread = 0;
     this.lastTime = 0;
     this.root.dataset.exploded = "false";
-    this.resetView(false);
+    this.resetView();
     this.resize();
     this.renderer.domElement.focus({ preventScroll: true });
     this.enter();
@@ -195,7 +192,7 @@ export class ModelViewer {
     this.controls.enabled = false;
     const loading = this.root.querySelector<HTMLElement>(".viewer-loading")!;
     loading.hidden = false;
-    loading.querySelector("span")!.textContent = "正在载入模型…";
+    loading.querySelector("span")!.textContent = message("正在载入模型…");
     loading.querySelector<HTMLElement>("button")!.hidden = true;
     this.setButtonsDisabled(true);
     try {
@@ -217,7 +214,6 @@ export class ModelViewer {
       for (const group of this.groups.values()) source.model.add(group);
       source.model.position.set(0, -1.85, 0);
       this.scene.add(source.model);
-      applyTextureQuality(source.model, this.renderer, this.quality);
       this.loading = false;
       loading.hidden = true;
       this.controls.enabled = true;
@@ -226,6 +222,7 @@ export class ModelViewer {
       this.setStatus("已组装");
       // Render before revealing the canvas so a new model never flashes in.
       this.update(this.lastTime);
+      if (this.traceWanted) void this.startPathTracing();
       if (!this.reduced)
         this.transitions.push(
           this.canvasHost.animate(
@@ -239,7 +236,8 @@ export class ModelViewer {
     } catch (error) {
       if (!this.isOpen || this.closing || ticket !== this.request) return;
       this.loading = false;
-      loading.querySelector("span")!.textContent = "模型载入失败，请重试";
+      loading.querySelector("span")!.textContent =
+        message("模型载入失败，请重试");
       loading.querySelector<HTMLElement>("button")!.hidden = false;
       console.error("Model viewer failed to load", error);
     }
@@ -337,6 +335,11 @@ export class ModelViewer {
     this.isOpen = false;
     this.closing = false;
     this.root.hidden = true;
+    this.traceTicket++;
+    this.traceLoading = false;
+    this.pathTracer?.dispose();
+    this.pathTracer = undefined;
+    this.setTraceStatus("");
     this.transitions.forEach((animation) => animation.cancel());
     this.transitions = [];
     if (this.source) {
@@ -359,6 +362,7 @@ export class ModelViewer {
     }
   }
   private setExploded(value: boolean) {
+    this.pathTracer?.invalidateGeometry();
     this.targetSpread = value ? 1 : 0;
     this.root.dataset.exploded = String(value);
     this.root
@@ -373,28 +377,59 @@ export class ModelViewer {
     if (this.reduced) this.spread = { value: this.targetSpread, velocity: 0 };
   }
   private setStatus(value: string) {
+    value = message(value);
     if (value !== this.status) {
       this.status = value;
-      this.root.querySelector(".viewer-state")!.textContent = value;
+      this.root.querySelector(".viewer-assembly-state")!.textContent = value;
     }
   }
-  private resetView(animated = true) {
+  private setTraceStatus(value: string) {
+    value = message(value);
+    if (value === this.traceStatus) return;
+    this.traceStatus = value;
+    this.root.dataset.traceState = value;
+  }
+  private async startPathTracing() {
+    if (this.pathTracer || this.traceLoading || !this.source) return;
+    const ticket = ++this.traceTicket;
+    this.traceLoading = true;
+    this.setTraceStatus("准备光追…");
+    try {
+      const { ViewerPathTracer } = await import("./viewer-pathtracer");
+      if (
+        ticket !== this.traceTicket ||
+        !this.isOpen ||
+        this.closing ||
+        !this.traceWanted ||
+        !this.source
+      )
+        return;
+      this.pathTracer = new ViewerPathTracer(
+        this.renderer,
+        this.camera,
+        this.scene,
+        this.source.model,
+      );
+    } catch (error) {
+      if (ticket !== this.traceTicket || !this.isOpen || this.closing) return;
+      console.error("Path tracing initialization failed", error);
+      this.traceWanted = false;
+      this.setTraceStatus("光追未就绪 · 可重试");
+    } finally {
+      if (ticket === this.traceTicket) this.traceLoading = false;
+    }
+  }
+  private resetView() {
     this.controls.enabled = false;
     this.controls.enableDamping = false;
     this.controls.update();
     this.controls.target.set(0, 0, 0);
-    this.controlCamera.position.copy(this.initialCamera);
+    this.camera.position.copy(this.initialCamera);
     this.controls.enableDamping = false;
     this.controls.update();
-    if (animated && !this.reduced) this.cameraMotion.reset();
-    else this.cameraMotion.snap(this.controlCamera, this.controls.target);
+    this.controls.enableDamping = !this.reduced;
     this.controls.enabled =
       this.isOpen && !this.loading && Boolean(this.source);
-  }
-  private interruptReset() {
-    if (!this.cameraMotion.resetting) return;
-    this.cameraMotion.interruptReset(this.controlCamera, this.controls.target);
-    this.controls.update();
   }
   private keydown(event: KeyboardEvent) {
     event.stopPropagation();
@@ -429,21 +464,17 @@ export class ModelViewer {
     if (event.key === "Home") {
       event.preventDefault();
       this.resetView();
-      this.onSound("tick");
       return;
     }
     if (["+", "=", "-"].includes(event.key)) {
       event.preventDefault();
-      this.interruptReset();
-      const distance = this.controlCamera.position.distanceTo(
-        this.controls.target,
-      );
+      const distance = this.camera.position.distanceTo(this.controls.target);
       const next = THREE.MathUtils.clamp(
         distance * (event.key === "-" ? 1.12 : 1 / 1.12),
         5,
         28,
       );
-      this.controlCamera.position
+      this.camera.position
         .sub(this.controls.target)
         .multiplyScalar(next / distance)
         .add(this.controls.target);
@@ -454,7 +485,6 @@ export class ModelViewer {
       ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)
     ) {
       event.preventDefault();
-      this.interruptReset();
       const right = new THREE.Vector3().setFromMatrixColumn(
         this.camera.matrix,
         0,
@@ -462,47 +492,40 @@ export class ModelViewer {
       const up = new THREE.Vector3().setFromMatrixColumn(this.camera.matrix, 1);
       const delta = new THREE.Vector3();
       const step =
-        this.controlCamera.position.distanceTo(this.controls.target) * 0.025;
+        this.camera.position.distanceTo(this.controls.target) * 0.025;
       if (event.key === "ArrowLeft") delta.addScaledVector(right, -step);
       if (event.key === "ArrowRight") delta.addScaledVector(right, step);
       if (event.key === "ArrowUp") delta.addScaledVector(up, step);
       if (event.key === "ArrowDown") delta.addScaledVector(up, -step);
-      // Clamp the requested focus before moving the camera by the same amount.
-      // This preserves orbit radius at the panning limit.
-      const previous = this.controls.target.clone();
+      this.camera.position.add(delta);
       this.controls.target.add(delta);
-      this.controls.target.clampLength(0, this.controls.maxTargetRadius);
-      this.controlCamera.position.add(
-        this.controls.target.clone().sub(previous),
-      );
       this.controls.update();
     }
-  }
-
-  setQuality(quality: RenderQuality) {
-    const key = JSON.stringify(quality);
-    if (this.appliedQuality === key) return;
-    this.appliedQuality = key;
-    this.quality = normalizeQuality(quality);
-    this.pipeline.smaa.enabled = this.quality.antialias === "smaa";
-    applyTextureQuality(this.scene, this.renderer, this.quality);
-    this.resize();
   }
 
   resize() {
     if (!this.isOpen) return;
     const width = this.canvasHost.clientWidth,
       height = this.canvasHost.clientHeight;
-    resizeQuality(
-      this.renderer,
-      this.pipeline.composer,
-      this.canvasHost,
-      this.quality,
+    this.renderer.setPixelRatio(
+      archivePixelRatio(
+        width,
+        height,
+        this.canvasHost.getBoundingClientRect().width / width,
+        devicePixelRatio,
+      ),
     );
+    this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
+    this.camera.fov = THREE.MathUtils.radToDeg(
+      2 *
+        Math.atan(
+          Math.tan(THREE.MathUtils.degToRad(34) / 2) *
+            Math.max(1, 1 / this.camera.aspect),
+        ),
+    );
     this.camera.updateProjectionMatrix();
-    this.controlCamera.aspect = this.camera.aspect;
-    this.controlCamera.updateProjectionMatrix();
+    this.pathTracer?.invalidateCamera();
   }
 
   update(time: number) {
@@ -523,32 +546,37 @@ export class ModelViewer {
       }
     }
     this.controls.update();
-    this.cameraMotion.update(
-      this.controlCamera,
-      this.controls.target,
-      dt,
-      this.reduced,
-    );
     // Match the detail scene's gentle haze without washing out the object as
     // the user zooms. The assembled model is centered on the world origin.
     const fog = this.scene.fog as THREE.Fog;
     const objectDistance = this.camera.position.length();
-    fog.near = Math.max(0, objectDistance - 1);
-    fog.far = objectDistance + 12;
-    if (this.quality.antialias === "smaa") this.pipeline.composer.render();
-    else this.renderer.render(this.scene, this.camera);
+    fog.near = objectDistance + 5;
+    fog.far = objectDistance + 28;
+    if (this.pathTracer && this.traceWanted && !this.closing) {
+      const state = this.pathTracer.render(
+        time,
+        Math.abs(this.spread.value - this.targetSpread) > 0.0001 ||
+          Math.abs(this.spread.velocity) > 0.001,
+      );
+      this.setTraceStatus(
+        state === "interactive"
+          ? "交互预览"
+          : state === "preparing"
+            ? "准备光追…"
+            : state === "refining"
+              ? "光追细化中…"
+              : "精细光追",
+      );
+    } else this.renderer.render(this.scene, this.camera);
     this.root.dataset.stats = JSON.stringify({
       ready: Boolean(this.source),
+      gpuBackend: this.gpuBackend,
+      pathTracing:
+        this.traceWanted && this.pathTracer ? this.pathTracer.getStats() : null,
       spread: this.spread.value,
       target: this.targetSpread,
-      distance: this.camera.position.distanceTo(this.cameraMotion.focus),
-      targetPosition: this.cameraMotion.focus.toArray(),
-      requestedTarget: this.controls.target.toArray(),
-      requestedDistance: this.controlCamera.position.distanceTo(
-        this.controls.target,
-      ),
-      cameraPosition: this.camera.position.toArray(),
-      resetting: this.cameraMotion.resetting,
+      distance: this.camera.position.distanceTo(this.controls.target),
+      targetPosition: this.controls.target.toArray(),
       azimuth: this.controls.getAzimuthalAngle(),
       polar: this.controls.getPolarAngle(),
       parts: [...this.groups].map(([id, group]) => ({

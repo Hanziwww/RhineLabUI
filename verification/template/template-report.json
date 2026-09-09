@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "40 default documents, column order, original text and download exports unchanged",
+    "Variable counts 1/7/8/9/12/33, unequal columns, rebase, directional seams and fixed 288-cell pool",
+    "Knowledge search follows authored stable IDs, titles and columns without changing source phenotype keys",
+    "GFM, footnotes, inline/display math, images, long code, safe HTML, relative links and actionable validation errors",
+    "Third-site creation excludes Cloudflare account; default build contains no IEKB snapshot"
+  ],
+  "navigationMoves": 234000
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ArchiveDocument frontmatter",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "number", "title", "column"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+      "maxLength": 120
+    },
+    "number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999999
+    },
+    "order": {
+      "type": "number"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "column": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "string"
+    },
+    "layout": {
+      "enum": ["legacy", "markdown", "knowledge"]
+    },
+    "tabsFromHeadings": {
+      "type": "boolean"
+    },
+    "dataKey": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "clearance": {
+      "type": "string"
+    }
+  }
+}

@@ -10,7 +10,7 @@ prefix = prefix.replace("scene.name='Rhine_Archive_Asset'", "scene.name='Rhine_A
 exec(compile(prefix, str(ROOT/'art/build_archive.py'), 'exec'))
 ROOT = BUILD_ROOT
 def part_for(name):
-    if name.startswith(('Rear translucent carrier', 'Polished perimeter rail', 'Ivory spine cap', 'Carrier mating seam')):
+    if name.startswith(('Rear translucent carrier', 'Polished perimeter rail', 'Ivory spine cap')):
         return 'carrier'
     if name.startswith('Information substrate'): return 'substrate'
     if name.startswith(('Embedded optical cavity', 'Embedded amber annulus')): return 'optical-core'
@@ -46,5 +46,5 @@ for (part, surface), objects in pairs.items():
     for vertex in obj.data.vertices: vertex.co.y *= 2.0
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.export_scene.gltf(filepath=str(ROOT/'public/assets/archive-assembly.glb'), export_format='GLB', use_selection=True, use_active_scene=True, export_apply=True, export_extras=True)
-bpy.data.libraries.write(str(ROOT/'art/archive-assembly.blend'), {scene}, fake_user=True)
+bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'art/archive-assembly.blend'))
 print('Assembly exported:', len(scene.objects), 'meshes, parts:', sorted({o['assemblyPart'] for o in scene.objects}))

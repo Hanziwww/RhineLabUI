@@ -1,0 +1,17 @@
+IEKB DATA LICENSE NOTICE
+
+Unless an artifact-level release manifest states otherwise, Tian-lab-authored
+IEKB data exports and the IEKB SQLite database are made available under the
+Creative Commons Attribution 4.0 International License (CC BY 4.0):
+
+https://creativecommons.org/licenses/by/4.0/
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+You may share and adapt the licensed material, including for commercial use,
+provided that you give appropriate credit, link to the license, indicate if
+changes were made, and comply with the other CC BY 4.0 conditions. No
+additional restriction is imposed on CC BY 4.0 material.
+
+Third-party source material remains subject to its original terms. The IEKB and
+Tian-lab names, logos, and marks are not included in the data license except as
+needed for factual attribution; reuse must not imply endorsement.

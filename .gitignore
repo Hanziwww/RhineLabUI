@@ -1,6 +1,13 @@
 node_modules/
+.generated/
+sites/*/generated/
+playwright-report/
+test-results/
 backups/
 dist/
+.wrangler/
+.dev.vars
+.dev.vars.*
 .tools/
 *.mp4
 *.blend1
@@ -16,3 +23,6 @@ __pycache__/
 .env
 .env.*
 !.env.example
+sites/rhine-audiology/data/
+sites/*/.data-restore-*/
+sites/*/snapshot/*.tmp

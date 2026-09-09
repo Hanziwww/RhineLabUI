@@ -1,0 +1,502 @@
+[
+  {
+    "port": 5173,
+    "archive": {
+      "topLeft": [
+        517,
+        313
+      ],
+      "topRight": [
+        899,
+        139
+      ],
+      "labelTopLeft": [
+        600,
+        350
+      ],
+      "labelBottomLeft": [
+        600,
+        408
+      ],
+      "modelPosition": [
+        0,
+        -1.9963,
+        -2.17
+      ],
+      "cameraPosition": [
+        -114.5565,
+        45.5345,
+        68.6579
+      ],
+      "fieldOfView": 3.332219683748435,
+      "cameraNear": 79.99999999999991,
+      "cameraFar": 199.99999999999991,
+      "antialias": "SMAA",
+      "shadows": {
+        "method": "PCF",
+        "resolution": 4096,
+        "exactGeometry": true
+      },
+      "surface": "clear-acrylic",
+      "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "pathTracing": {
+        "engine": "three-gpu-pathtracer",
+        "state": "preparing",
+        "samples": 4,
+        "sampleLimit": 512,
+        "width": 1920,
+        "height": 1200,
+        "triangles": 2615296,
+        "expandedInstances": 1435,
+        "builds": 1,
+        "buildProgress": 1,
+        "geometry": "actual-triangles",
+        "worker": true,
+        "areaLights": 3
+      },
+      "renderSize": {
+        "width": 1920,
+        "height": 1200,
+        "msaa": 4,
+        "depthOfField": false
+      },
+      "shellMaterials": [
+        {
+          "name": "Frosted_Polymer",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.065,
+          "transmission": 0.9
+        },
+        {
+          "name": "Ivory_Edges",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.12,
+          "transmission": 0.8799999999999999
+        }
+      ],
+      "aoProjectionSynced": true,
+      "loaded": true,
+      "drawCalls": 74,
+      "triangles": 9375058,
+      "archiveCount": 288,
+      "returningFiles": 0,
+      "selectionPhase": "settled",
+      "pendingPulse": null,
+      "pulses": [],
+      "referenceTime": 51.88,
+      "selectedSlot": 76,
+      "selectedLane": 2,
+      "selectedCell": {
+        "lane": 2,
+        "row": 12
+      },
+      "hoveredCell": null,
+      "hoverLifts": [],
+      "coordinateOrigin": {
+        "lane": 0,
+        "row": 0
+      },
+      "poolBounds": {
+        "minLane": -2,
+        "maxLane": 6,
+        "minRow": -3,
+        "maxRow": 28
+      },
+      "laneFocus": 2,
+      "columnCamera": 0,
+      "rotation": 0,
+      "clearance": -3.2864903132290335,
+      "canInspect": false,
+      "returnPhase": "lowering",
+      "extraction": 0.4,
+      "appearance": 1,
+      "cameraDetail": 0,
+      "idleGain": 0,
+      "cameraDistance": 139.99999999999991,
+      "fogNear": 144.99999999999991,
+      "fogFar": 164.99999999999991,
+      "returningAppearance": [],
+      "rail": 0,
+      "fps": 13,
+      "mode": "archive",
+      "selected": "X-001",
+      "saved": []
+    },
+    "detail": {
+      "topLeft": [
+        98,
+        288
+      ],
+      "topRight": [
+        989,
+        237
+      ],
+      "labelTopLeft": [
+        227,
+        360
+      ],
+      "labelBottomLeft": [
+        228,
+        435
+      ],
+      "modelPosition": [
+        0,
+        1.6536,
+        -2.17
+      ],
+      "cameraPosition": [
+        -17.8378,
+        20.7739,
+        65.5077
+      ],
+      "fieldOfView": 5.210361809385442,
+      "cameraNear": 12.051958825993466,
+      "cameraFar": 132.05195882599347,
+      "antialias": "SMAA",
+      "shadows": {
+        "method": "PCF",
+        "resolution": 4096,
+        "exactGeometry": true
+      },
+      "surface": "clear-acrylic",
+      "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "pathTracing": {
+        "engine": "three-gpu-pathtracer",
+        "state": "interactive",
+        "samples": 0,
+        "sampleLimit": 512,
+        "width": 1920,
+        "height": 1200,
+        "triangles": 2615296,
+        "expandedInstances": 1435,
+        "builds": 1,
+        "buildProgress": 1,
+        "geometry": "actual-triangles",
+        "worker": true,
+        "areaLights": 3
+      },
+      "renderSize": {
+        "width": 1920,
+        "height": 1200,
+        "msaa": 4,
+        "depthOfField": false
+      },
+      "shellMaterials": [
+        {
+          "name": "Frosted_Polymer",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.065,
+          "transmission": 0.9
+        },
+        {
+          "name": "Ivory_Edges",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.12,
+          "transmission": 0.88
+        }
+      ],
+      "aoProjectionSynced": true,
+      "loaded": true,
+      "drawCalls": 73,
+      "triangles": 9375057,
+      "archiveCount": 288,
+      "returningFiles": 0,
+      "selectionPhase": "settled",
+      "pendingPulse": null,
+      "pulses": [],
+      "referenceTime": 55.48,
+      "selectedSlot": 76,
+      "selectedLane": 2,
+      "selectedCell": {
+        "lane": 2,
+        "row": 12
+      },
+      "hoveredCell": null,
+      "hoverLifts": [],
+      "coordinateOrigin": {
+        "lane": 0,
+        "row": 0
+      },
+      "poolBounds": {
+        "minLane": -2,
+        "maxLane": 6,
+        "minRow": -3,
+        "maxRow": 28
+      },
+      "laneFocus": 2,
+      "columnCamera": 0,
+      "rotation": 0,
+      "clearance": 0.3634385932945472,
+      "canInspect": true,
+      "returnPhase": "lowering",
+      "extraction": 4.05,
+      "appearance": 1,
+      "cameraDetail": 1,
+      "idleGain": 0,
+      "cameraDistance": 72.05195882599347,
+      "fogNear": 76.05229976844686,
+      "fogFar": 96.05229976844686,
+      "returningAppearance": [],
+      "rail": 0,
+      "fps": 127,
+      "mode": "detail",
+      "selected": "X-001",
+      "saved": []
+    },
+    "errors": []
+  },
+  {
+    "port": 5174,
+    "archive": {
+      "topLeft": [
+        517,
+        313
+      ],
+      "topRight": [
+        899,
+        139
+      ],
+      "labelTopLeft": [
+        600,
+        350
+      ],
+      "labelBottomLeft": [
+        600,
+        408
+      ],
+      "modelPosition": [
+        0,
+        -1.9963,
+        -2.17
+      ],
+      "cameraPosition": [
+        -114.5565,
+        45.5345,
+        68.6579
+      ],
+      "fieldOfView": 3.332219683748434,
+      "cameraNear": 79.99999999999994,
+      "cameraFar": 199.99999999999994,
+      "antialias": "SMAA",
+      "shadows": {
+        "method": "PCF",
+        "resolution": 4096,
+        "exactGeometry": true
+      },
+      "surface": "clear-acrylic",
+      "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "pathTracing": {
+        "engine": "three-gpu-pathtracer",
+        "state": "preparing",
+        "samples": 4,
+        "sampleLimit": 512,
+        "width": 1920,
+        "height": 1200,
+        "triangles": 2615296,
+        "expandedInstances": 1435,
+        "builds": 1,
+        "buildProgress": 1,
+        "geometry": "actual-triangles",
+        "worker": true,
+        "areaLights": 3
+      },
+      "renderSize": {
+        "width": 1920,
+        "height": 1200,
+        "msaa": 4,
+        "depthOfField": false
+      },
+      "shellMaterials": [
+        {
+          "name": "Frosted_Polymer",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.06499999999999997,
+          "transmission": 0.9
+        },
+        {
+          "name": "Ivory_Edges",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.11999999999999998,
+          "transmission": 0.8800000000000001
+        }
+      ],
+      "aoProjectionSynced": true,
+      "loaded": true,
+      "drawCalls": 74,
+      "triangles": 9375058,
+      "archiveCount": 288,
+      "returningFiles": 0,
+      "selectionPhase": "settled",
+      "pendingPulse": null,
+      "pulses": [],
+      "referenceTime": 46.18,
+      "selectedSlot": 20,
+      "selectedLane": 0,
+      "selectedCell": {
+        "lane": 0,
+        "row": 20
+      },
+      "hoveredCell": null,
+      "hoverLifts": [],
+      "coordinateOrigin": {
+        "lane": 0,
+        "row": 0
+      },
+      "poolBounds": {
+        "minLane": -4,
+        "maxLane": 4,
+        "minRow": 4,
+        "maxRow": 35
+      },
+      "laneFocus": 1.0324745528271677e-19,
+      "columnCamera": -10.399999999999984,
+      "rotation": 0,
+      "clearance": -3.286490313229036,
+      "canInspect": false,
+      "returnPhase": "lowering",
+      "extraction": 0.4,
+      "appearance": 1,
+      "cameraDetail": 0,
+      "idleGain": 0,
+      "cameraDistance": 139.99999999999994,
+      "fogNear": 144.99999999999994,
+      "fogFar": 164.99999999999994,
+      "returningAppearance": [],
+      "rail": -4.96,
+      "fps": 45,
+      "mode": "archive",
+      "selected": "sensorineural-hearing-loss",
+      "saved": []
+    },
+    "detail": {
+      "topLeft": [
+        98,
+        288
+      ],
+      "topRight": [
+        989,
+        237
+      ],
+      "labelTopLeft": [
+        227,
+        360
+      ],
+      "labelBottomLeft": [
+        228,
+        435
+      ],
+      "modelPosition": [
+        0,
+        1.6536,
+        -2.17
+      ],
+      "cameraPosition": [
+        -17.8383,
+        20.774,
+        65.5081
+      ],
+      "fieldOfView": 5.210333558428813,
+      "cameraNear": 12.052487284593326,
+      "cameraFar": 132.05248728459333,
+      "antialias": "SMAA",
+      "shadows": {
+        "method": "PCF",
+        "resolution": 4096,
+        "exactGeometry": true
+      },
+      "surface": "clear-acrylic",
+      "gpuBackend": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 D v2 (0x00002B8C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "pathTracing": {
+        "engine": "three-gpu-pathtracer",
+        "state": "interactive",
+        "samples": 0,
+        "sampleLimit": 512,
+        "width": 1920,
+        "height": 1200,
+        "triangles": 2615296,
+        "expandedInstances": 1435,
+        "builds": 1,
+        "buildProgress": 1,
+        "geometry": "actual-triangles",
+        "worker": true,
+        "areaLights": 3
+      },
+      "renderSize": {
+        "width": 1920,
+        "height": 1200,
+        "msaa": 4,
+        "depthOfField": false
+      },
+      "shellMaterials": [
+        {
+          "name": "Frosted_Polymer",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.065,
+          "transmission": 0.9
+        },
+        {
+          "name": "Ivory_Edges",
+          "normalMap": false,
+          "roughnessMap": false,
+          "roughness": 0.12,
+          "transmission": 0.88
+        }
+      ],
+      "aoProjectionSynced": true,
+      "loaded": true,
+      "drawCalls": 73,
+      "triangles": 9375057,
+      "archiveCount": 288,
+      "returningFiles": 0,
+      "selectionPhase": "settled",
+      "pendingPulse": null,
+      "pulses": [],
+      "referenceTime": 49.78,
+      "selectedSlot": 20,
+      "selectedLane": 0,
+      "selectedCell": {
+        "lane": 0,
+        "row": 20
+      },
+      "hoveredCell": null,
+      "hoverLifts": [],
+      "coordinateOrigin": {
+        "lane": 0,
+        "row": 0
+      },
+      "poolBounds": {
+        "minLane": -4,
+        "maxLane": 4,
+        "minRow": 4,
+        "maxRow": 35
+      },
+      "laneFocus": 7.261981067290263e-26,
+      "columnCamera": -10.39999999999999,
+      "rotation": 0,
+      "clearance": 0.36343758534282067,
+      "canInspect": true,
+      "returnPhase": "lowering",
+      "extraction": 4.05,
+      "appearance": 1,
+      "cameraDetail": 1,
+      "idleGain": 0,
+      "cameraDistance": 72.05248728459333,
+      "fogNear": 76.05283172729465,
+      "fogFar": 96.05283172729463,
+      "returningAppearance": [],
+      "rail": -4.96,
+      "fps": 126,
+      "mode": "detail",
+      "selected": "sensorineural-hearing-loss",
+      "saved": []
+    },
+    "errors": []
+  }
+]

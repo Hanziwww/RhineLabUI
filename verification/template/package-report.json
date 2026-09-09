@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-09-09T02:16:23.750Z",
+  "checks": [
+    "Fresh checkout: bundled data restored using Node only, with archive and extracted-file checksums",
+    "All 9788 data files are byte-identical to the local import",
+    "Existing local data is retained on repeated restore",
+    "Sites without a data package perform no extraction or writes",
+    "Corrupted archive is rejected before creating a data directory"
+  ],
+  "dataFiles": 9788,
+  "compressedBytes": 31129093,
+  "uncompressedBytes": 273753474,
+  "sha256": "a0104b121e1d8437510624101307ec88417401893118c665723f1b1b5aa383c9",
+  "passed": true
+}

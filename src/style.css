@@ -122,50 +122,31 @@ button {
 .brand {
   position: absolute;
   left: 59px;
-  top: 114px;
+  top: 112px;
   z-index: 5;
   line-height: 1;
   user-select: none;
-  width: 270px;
-  white-space: nowrap;
 }
 .brand h1 {
-  font-size: 44px;
-  letter-spacing: 2.5px;
-  line-height: 48px;
+  font-size: 48px;
+  letter-spacing: 0.1px;
+  line-height: 51px;
   margin: 0;
   font-weight: 750;
 }
 .brand > div {
-  font-size: 19px;
+  font-size: 20px;
   line-height: 23px;
-  letter-spacing: 0.65px;
-  font-weight: 600;
+  letter-spacing: -0.05px;
 }
 .brand p {
   margin: 0;
-  font-size: 35px;
+  font-size: 38px;
   line-height: 40px;
-  letter-spacing: 0;
-  word-spacing: 0;
-  display: flex;
-  justify-content: space-between;
+  word-spacing: 10px;
 }
 .brand p b {
   font-weight: 750;
-  letter-spacing: 3px;
-}
-.brand-analysis {
-  position: relative;
-  display: block;
-  width: 189px;
-  height: 40px;
-}
-.brand-analysis > span {
-  position: absolute;
-  top: 0;
-  letter-spacing: 0;
-  font-kerning: none;
 }
 .powered {
   position: absolute;
@@ -386,8 +367,6 @@ button {
 }
 .system-nav button {
   font-size: 14px;
-  line-height: 1;
-  min-height: 28px;
   letter-spacing: 0.7px;
   display: flex;
   align-items: center;
@@ -397,8 +376,8 @@ button {
   color: #9b7247;
 }
 .nav-glyph {
-  width: 23px;
-  height: 23px;
+  font-size: 31px;
+  line-height: 19px;
 }
 .key {
   font-size: 11px;
@@ -408,8 +387,6 @@ button {
   align-items: center;
   min-width: 19px;
   height: 21px;
-  flex-shrink: 0;
-  line-height: 1;
   opacity: 0.6;
   margin-left: 6px;
 }
@@ -437,7 +414,7 @@ button {
   opacity: 0;
   transition: opacity 0.7s;
 }
-.eyebrow > span {
+.eyebrow span {
   margin-left: 16px;
 }
 .file-title {
@@ -494,11 +471,6 @@ button {
     opacity 0.7s 0.4s,
     transform 0.7s 0.4s;
 }
-.file-summary > span:last-child {
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: #666257;
-}
 .read-file {
   display: flex;
   align-items: center;
@@ -544,10 +516,21 @@ button {
   font-size: 22px;
   color: #726f67;
 }
+.archive-controls {
+  position: absolute;
+  left: 480px;
+  bottom: 48px;
+  width: 430px;
+  height: 151px;
+  transition: opacity 0.3s ease;
+}
+[data-mode="archive"] .archive-controls {
+  pointer-events: auto;
+}
 .archive-navigation {
   position: absolute;
-  left: 504px;
-  bottom: 131px;
+  left: 24px;
+  bottom: 83px;
   display: flex;
   align-items: center;
   gap: 33px;
@@ -589,7 +572,7 @@ button {
   gap: 7px;
   min-width: 140px;
 }
-.column-navigation > div > span {
+.column-navigation span {
   font-size: 10px;
   letter-spacing: 1.2px;
   color: #726f67;
@@ -604,6 +587,9 @@ button {
   font-variant-numeric: tabular-nums;
   --rn-blur: 0.35;
   --rn-edge-fade: 0.08em;
+}
+.file-ticks button[hidden] {
+  display: none;
 }
 .file-ticks {
   display: flex;
@@ -640,8 +626,9 @@ button {
 }
 .archive-hint {
   position: absolute;
-  bottom: 60px;
-  left: 505px;
+  bottom: 12px;
+  left: 25px;
+  white-space: nowrap;
   color: #858077;
   font-size: 10px;
   letter-spacing: 0.9px;
@@ -737,6 +724,7 @@ button {
   position: absolute;
   left: 60px;
   bottom: 235px;
+  animation: fadeIn 1.4s 0.4s both;
 }
 .object-caption > span {
   font-size: 37px;
@@ -826,7 +814,6 @@ button {
   vertical-align: middle;
 }
 .detail-tabs {
-  position: relative;
   display: flex;
   gap: 34px;
   border-bottom: 1px solid #bdb8ad;
@@ -844,16 +831,14 @@ button {
 .detail-tabs button.active {
   color: #191c16;
 }
-.tab-indicator {
+.detail-tabs button.active:after {
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 0;
-  width: 1px;
+  right: 0;
   height: 2px;
   background: #25281e;
-  transform-origin: left center;
-  pointer-events: none;
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .tab-panel {
   height: 189px;
@@ -941,14 +926,10 @@ button {
   letter-spacing: 1px;
   width: 105px;
   text-align: left;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 46px;
 }
 .export-button span {
   font-size: 23px;
-  line-height: 1;
+  float: right;
 }
 .detail-footnote {
   display: flex;
@@ -974,12 +955,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.modal-backdrop[hidden] {
-  display: none;
-}
-.modal-backdrop[data-transition="closing"] .terminal-modal {
-  pointer-events: none;
+  animation: fadeIn 0.3s both;
 }
 .terminal-modal {
   width: 1260px;
@@ -989,6 +965,7 @@ button {
   border: 1px solid #f7f5ee;
   position: relative;
   padding: 35px 53px;
+  animation: modalEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .modal-top {
   display: flex;
@@ -1004,27 +981,9 @@ button {
   display: flex;
   gap: 24px;
   align-items: center;
-  line-height: 1;
 }
 .modal-top button > span {
-  position: relative;
-  flex: 0 0 16px;
-  height: 34px;
-  font-size: 0;
-}
-.modal-top button > span::before,
-.modal-top button > span::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 14px;
-  height: 2px;
-  background: currentColor;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-.modal-top button > span::after {
-  transform: translate(-50%, -50%) rotate(-45deg);
+  font-size: 26px;
 }
 .terminal-modal h2 {
   font-size: 38px;
@@ -1048,47 +1007,13 @@ button {
   gap: 22px;
 }
 .search-field > span:first-child {
-  width: 26px;
-  height: 26px;
-}
-/* Fixed geometry keeps the search symbol independent of font fallback metrics. */
-.nav-glyph,
-.search-field > span:first-child {
-  position: relative;
-  flex-shrink: 0;
-  display: block;
-  font-size: 0;
-}
-.nav-glyph::before,
-.search-field > span:first-child::before {
-  content: "";
-  position: absolute;
-  width: 60%;
-  height: 60%;
-  left: 30%;
-  top: 8%;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  box-sizing: border-box;
-}
-.nav-glyph::after,
-.search-field > span:first-child::after {
-  content: "";
-  position: absolute;
-  width: 42%;
-  height: 2px;
-  left: 9%;
-  top: 82%;
-  background: currentColor;
-  transform: rotate(-45deg);
-  transform-origin: left center;
+  font-size: 36px;
+  line-height: 1;
 }
 .search-field input {
   border: 0;
   background: none;
   width: 100%;
-  min-width: 0;
-  padding: 0;
   height: 100%;
   outline: none;
   font-size: 19px;
@@ -1113,35 +1038,18 @@ button {
   font-size: 12px;
   color: #8c8373;
   transition: color 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
 }
 .category-filters button.active {
   color: #1e2418;
 }
-.category-filters button:before {
-  content: "";
-  width: 4px;
-  height: 4px;
-  background: currentColor;
-  visibility: hidden;
-}
 .category-filters button.active:before {
-  visibility: visible;
-}
-.result-header,
-.result-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 230px 175px;
-  padding-right: 7px;
+  content: "▪";
+  margin-right: 7px;
 }
 .result-header {
-  padding-block: 14px;
-  /* Match the list's classic scrollbar gutter, including after filtering. */
-  overflow-y: hidden;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
+  display: grid;
+  grid-template-columns: 1fr 230px 175px;
+  padding: 14px 0;
   border-top: 1px solid #bfb7a7;
   border-bottom: 1px solid #bfb7a7;
   font-size: 9px;
@@ -1150,19 +1058,20 @@ button {
 }
 .search-results {
   height: 387px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-gutter: stable;
+  overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: #bbb4a6 transparent;
 }
 .result-row {
   width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 230px 175px;
   align-items: center;
   min-height: 76px;
   text-align: left;
   border-bottom: 1px solid #d6d0c4;
   transition: background 0.25s;
+  padding-right: 7px;
 }
 .result-row:hover,
 .result-row:focus-visible {
@@ -1173,18 +1082,14 @@ button {
   align-items: center;
   gap: 25px;
   font-size: 16px;
-  min-width: 0;
-  padding-right: 24px;
 }
 .result-name > b {
   font-size: 14px;
-  flex: 0 0 58px;
+  width: 58px;
   font-weight: 400;
 }
 .result-name > span {
   display: block;
-  min-width: 0;
-  overflow-wrap: anywhere;
 }
 .result-name small {
   display: block;
@@ -1206,17 +1111,10 @@ button {
   font-size: 9px;
   letter-spacing: 0.5px;
   color: #6b6d54;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-right: 30px;
-  line-height: 1;
 }
 .result-row > span:last-child > i {
   font-size: 24px;
-  flex: 0 0 24px;
-  line-height: 1;
+  margin-left: 30px;
   font-style: normal;
   color: #343a29;
 }
@@ -1283,14 +1181,6 @@ button {
 .settings-list {
   border-top: 1px solid #c1b8a7;
 }
-.audio-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-.settings-list .audio-toggle { padding: 20px 0 12px; border-bottom: 0; }
-.settings-list .audio-toggle span { margin-top: 7px; }
-.settings-list .audio-volume { justify-content: flex-start; gap: 12px; padding: 8px 0 18px; }
-.settings-list .audio-volume span { margin: 0; font-size: 10px; white-space: nowrap; }
-.settings-list .audio-volume input { position: static; width: 100%; min-width: 60px; height: 22px; opacity: 1; accent-color: #565c46; }
-.audio-volume output { min-width: 36px; text-align: right; font-size: 10px; font-variant-numeric: tabular-nums; }
-.audio-volume input:focus-visible { outline: 2px solid #a67d48; outline-offset: 4px; }
 .settings-list label {
   display: flex;
   align-items: center;
@@ -1379,13 +1269,10 @@ button {
 .settings-bottom button {
   font-size: 11px;
   letter-spacing: 0.8px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
 }
 .settings-bottom button span {
   font-size: 20px;
-  line-height: 1;
+  margin-left: 20px;
 }
 .toast {
   position: absolute;
@@ -1593,30 +1480,40 @@ button {
   opacity: 0;
   pointer-events: none;
 }
-.archive-atmosphere {
-  background: none;
+
+/* Interactive overlays yield to the archive; the reference opening stays timed. */
+:is([data-mode="archive"], [data-mode="detail"])
+  :is(.powered, .session-status) {
+  animation: creditFade 1.2s ease 5s forwards;
+  pointer-events: none;
 }
-.archive-atmosphere::before,
-.archive-atmosphere::after {
-  content: "";
-  position: absolute;
-  inset: 0;
+@keyframes creditFade {
+  to {
+    opacity: 0;
+  }
 }
-.archive-atmosphere::before {
-  opacity: calc(1 - var(--detail-shade, 0));
-  background:
-    linear-gradient(180deg, rgba(234, 231, 226, 0.35), transparent 38%),
-    radial-gradient(ellipse at 42% 47%, transparent 32%, rgba(232, 229, 225, 0.19) 85%);
+[data-mode="archive"] .archive-callout {
+  transition: opacity 0.25s ease;
 }
-.archive-atmosphere::after {
-  opacity: var(--detail-shade, 0);
-  background: linear-gradient(
-    90deg,
-    transparent 40%,
-    rgba(232, 229, 225, 0.2) 59%,
-    rgba(232, 229, 225, 0.92) 68%,
-    #e8e5e1 100%
-  );
+@media (hover: hover) and (pointer: fine) {
+  :is([data-mode="archive"], [data-mode="detail"]) .brand {
+    opacity: 0.5;
+  }
+  :is([data-mode="archive"], [data-mode="detail"]) .brand:hover {
+    opacity: 1;
+  }
+  [data-mode="archive"] .archive-controls {
+    opacity: 0;
+  }
+  [data-mode="archive"] .archive-controls:is(:hover, :has(:focus-visible)) {
+    opacity: 1;
+  }
+  [data-mode="archive"] .archive-callout {
+    opacity: var(--callout-opacity, 1);
+  }
+  [data-mode="archive"] .archive-callout:has(:focus-visible) {
+    opacity: 1;
+  }
 }
 @keyframes orbit {
   to {
@@ -1705,6 +1602,13 @@ button {
   opacity: 0.88;
   text-shadow: 0 1px 5px #4a4740;
 }
+.brand h1 {
+  font-size: 50px;
+}
+.brand p {
+  font-size: 40px;
+  word-spacing: 8px;
+}
 .powered {
   font-size: 19px;
 }
@@ -1714,6 +1618,9 @@ button {
 }
 .archive-callout {
   top: 471px;
+}
+.brand h1 {
+  transform: translateY(2px);
 }
 .export-button {
   color: inherit;
@@ -2021,15 +1928,37 @@ button {
   transition: none;
 }
 
-/* Use the same rolling engine as archive numbers, with quieter text blur. */
-#selected-title,
-#column-name,
-#hover-title,
-#archive-category,
-#selected-clearance {
+/* A stable strip replaces unreadable titles during rapid archive navigation. */
+.scrub-title {
+  display: inline-block;
+  position: relative;
+  white-space: nowrap;
   flex: none;
-  --rn-blur: 0.2;
-  --rn-edge-fade: 0.08em;
+}
+.scrub-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0.78em;
+  transform: translateY(-50%);
+  background: #191b16;
+  opacity: 0;
+  pointer-events: none;
+}
+.scrub-title[data-scrubbing="true"]::after {
+  opacity: 1;
+  animation: title-strip-appear 140ms steps(1, end);
+}
+@keyframes title-strip-appear {
+  0%,
+  70% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 /* Frame-driven opening: no elapsed CSS animation state when seeking/replaying. */
 [data-mode="boot"] .brand,

@@ -1,3 +1,4 @@
+import { site } from "./site";
 import { bootMotion, progress, smooth } from "./boot-motion";
 import { bootMarkStrokes } from "./brand";
 
@@ -53,8 +54,10 @@ export class BootSequence {
     const symbols = mark.querySelector("path:not([pathLength])")!;
     this.plus = document.createElementNS(ns, "path");
     this.plus.setAttribute("d", "M44 70h50M69 45v50");
+    if (site.brand.logo) this.plus.style.visibility = "hidden";
     this.minus = document.createElementNS(ns, "path");
     this.minus.setAttribute("d", "M219 70h44");
+    if (site.brand.logo) this.minus.style.visibility = "hidden";
     [this.plus, this.minus].forEach((p) => {
       p.setAttribute("stroke", "currentColor");
       p.setAttribute("stroke-width", "15");
@@ -97,12 +100,28 @@ export class BootSequence {
           1 - [s.drawTop, s.drawLeft, s.drawRight][i],
         )),
     );
-    this.letters.textContent = s.logoLetters;
+    this.letters.textContent =
+      site.brand.markText === "RHINE·LAB"
+        ? s.logoLetters
+        : site.brand.markText.slice(
+            0,
+            Math.ceil((s.logoLetters.length / 9) * site.brand.markText.length),
+          );
     this.plus.style.opacity = String(s.plus);
     this.minus.style.opacity = String(s.minus);
     this.plus.setAttribute("transform", `rotate(${s.plusAngle} 69 70)`);
     this.opacity(".auth-status", s.authOpacity);
-    this.el("#auth-message").textContent = s.auth;
+    this.el("#auth-message").textContent =
+      site.brand.operator === "JOYCE MOORE" || !s.auth.includes(" : ")
+        ? s.auth
+        : "ID CONFIRMED : " +
+          site.brand.operator.slice(
+            0,
+            Math.ceil(
+              ((s.auth.split(" : ")[1]?.length ?? 0) / 11) *
+                site.brand.operator.length,
+            ),
+          );
     this.opacity(".brand", 1);
     this.el(".brand").style.transform = `translateX(${s.brandX}px)`;
     this.brandLines.forEach(
